@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../shared/api.config';
 import {
-  CardShortDto,
+  CardDto,
   CreateDeckRequest,
   DeckDto,
   DeckFormatDto,
@@ -26,9 +26,9 @@ export class DeckService {
     return this.http.get<DeckFormatDto[]>(`${this.baseUrl}/decks/formats`);
   }
 
-  autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES'): Observable<CardShortDto[]> {
+  autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES'): Observable<CardDto[]> {
     const params = new HttpParams().set('name', name).set('searchMode', searchMode);
-    return this.http.get<CardShortDto[]>(`${this.baseUrl}/cards/autocomplete`, { params });
+    return this.http.get<CardDto[]>(`${this.baseUrl}/cards/autocomplete`, { params });
   }
 
   getDeck(id: number): Observable<DeckDto> {

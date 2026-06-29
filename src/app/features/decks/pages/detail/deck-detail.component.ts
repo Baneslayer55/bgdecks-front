@@ -5,17 +5,15 @@ import { Subject, debounceTime } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
-import { CardImageService } from '../../../cards/services/card-image.service';
 import { AuthService } from '../../../auth/services/auth/auth.service';
 import { DeckService } from '../../services/deck.service';
-import { DeckCardDto, DeckDto, UpdateDeckCardItem } from '../../models/deck.model';
-import { Card } from '../../../../shared/models/card.model';
-import { CardShortDto } from '../../models/deck.model';
+import { CardDto, DeckCardDto, DeckDto, UpdateDeckCardItem } from '../../models/deck.model';
 import { CardBrowserPanelComponent, CardAddedEvent } from '../../components/card-browser-panel/card-browser-panel.component';
 import { DeckCardEntryComponent } from '../../components/deck-card-entry/deck-card-entry.component';
 import { EditCardTileComponent } from '../../components/edit-card-tile/edit-card-tile.component';
 import { UserProfileCompactComponent } from '../../../../shared/components/user-profile-compact/user-profile-compact.component';
 import { CardAutocompleteComponent } from '../../../../shared/components/card-autocomplete/card-autocomplete.component';
+import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
 
 type Position = 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
 
@@ -36,12 +34,12 @@ const LIST_IDS: Record<Position, string> = {
     UserProfileCompactComponent,
     CardAutocompleteComponent,
     CardBrowserPanelComponent,
+    CardImageComponent,
   ],
   templateUrl: './deck-detail.component.html',
 })
 export class DeckDetailComponent {
   private readonly deckService = inject(DeckService);
-  private readonly cardImageService = inject(CardImageService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -83,7 +81,7 @@ export class DeckDetailComponent {
   readonly sideboardGridCols = computed(() =>
     this.isMobile()
       ? 'repeat(auto-fill, minmax(120px, 150px))'
-      : 'repeat(auto-fill, minmax(160px, 200px))',
+      : 'repeat(2, minmax(0, 1fr))',
   );
 
   @HostListener('window:resize')
@@ -93,19 +91,11 @@ export class DeckDetailComponent {
 
   private readonly change$ = new Subject<void>();
 
+  readonly deckFormatName = computed(() => this.deck()?.format?.name ?? null);
+
   readonly isOwner = computed(() => {
     const d = this.deck();
     return d ? this.authService.isCurrentUser(d.owner.userId) : false;
-  });
-
-  readonly heroImageUrl = computed(() => {
-    const hero = this.deck()?.hero;
-    return hero ? this.cardImageService.getCardImageUrl(hero as Card) : '';
-  });
-
-  readonly editHeroImageUrl = computed(() => {
-    const hero = this.editHeroCard();
-    return hero ? this.cardImageService.getCardImageUrl(hero as Card) : '';
   });
 
   readonly mainCards = computed<DeckCardDto[]>(() =>
@@ -209,35 +199,22 @@ export class DeckDetailComponent {
     });
   }
 
-  onHeroSelected(card: CardShortDto | null): void {
+  onHeroSelected(card: CardDto | null): void {
     if (!card) return;
     this.editHeroError.set(false);
     this.editHeroId.set(card.id);
-    this.editHeroCard.set({
-      id: card.id,
-      name: card.name,
-      number: card.number,
-      variant: card.variant,
-      isFoil: card.isFoil,
-      imageMd5: card.imageMd5,
-      setInfo: card.setInfo,
-    });
+    this.editHeroCard.set(card);
     this.markDirty();
   }
 
-  addCard(card: CardShortDto | null, position: Position): void {
+  addCard(card: CardDto | null, position: Position): void {
     if (!card) return;
     const sig = this.sectionSignal(position);
     const existing = sig().find((e) => e.card.id === card.id);
     if (existing) {
       sig.update((arr) => arr.map((e) => (e.card.id === card.id ? { ...e, cardsCount: e.cardsCount + 1 } : e)));
     } else {
-      const entry: DeckCardDto = {
-        card: { id: card.id, name: card.name, number: card.number, variant: card.variant, isFoil: card.isFoil, imageMd5: card.imageMd5, setInfo: card.setInfo },
-        position,
-        cardsCount: 1,
-      };
-      sig.update((arr) => [...arr, entry]);
+      sig.update((arr) => [...arr, { card, position, cardsCount: 1 }]);
     }
     if (position === 'MAIN') this.addMainTrigger.update((v) => v + 1);
     else if (position === 'SIDEBOARD') this.addSideboardTrigger.update((v) => v + 1);
@@ -281,16 +258,7 @@ export class DeckDetailComponent {
   }
 
   onCardAdded(event: CardAddedEvent): void {
-    const dto: CardShortDto = {
-      id: event.card.id,
-      name: event.card.name,
-      number: event.card.number ?? 0,
-      variant: event.card.variant ?? '',
-      isFoil: event.card.isFoil ?? false,
-      imageMd5: event.card.imageMd5,
-      setInfo: event.card.setInfo,
-    };
-    this.addCard(dto, event.position);
+    this.addCard(event.card, event.position);
   }
 
   private markDirty(): void {

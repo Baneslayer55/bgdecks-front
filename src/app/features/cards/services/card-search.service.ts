@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../shared/api.config';
 import { ArtistDto, SetInfoDto } from '../../../shared/models/card.model';
 import {
-  Card,
+  CardDto,
   CardClass,
   CardSearchRequest,
   PagedResponse,
@@ -15,9 +15,9 @@ export class CardSearchService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  search(request: CardSearchRequest, page: number, size: number): Observable<PagedResponse<Card>> {
+  search(request: CardSearchRequest, page: number, size: number): Observable<PagedResponse<CardDto>> {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.post<PagedResponse<Card>>(`${this.baseUrl}/cards/search`, request, { params });
+    return this.http.post<PagedResponse<CardDto>>(`${this.baseUrl}/cards/search`, request, { params });
   }
 
   getSets(): Observable<SetInfoDto[]> {

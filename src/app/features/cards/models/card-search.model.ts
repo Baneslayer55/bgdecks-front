@@ -1,4 +1,4 @@
-export type { Card, ArtistDto, SetInfoDto, CardParamsDto } from '../../../shared/models/card.model';
+export type { CardDto, ArtistDto, SetInfoDto, CardParamsDto } from '../../../shared/models/card.model';
 
 export type Operator = 'GT' | 'LS' | 'EQ' | 'GQ' | 'LQ';
 

@@ -3,19 +3,18 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DeckPreviewDto } from '../../models/deck.model';
-import { CardImageService } from '../../../cards/services/card-image.service';
 import { AuthService } from '../../../auth/services/auth/auth.service';
 import { DeckService } from '../../services/deck.service';
 import { UserProfileCompactComponent } from '../../../../shared/components/user-profile-compact/user-profile-compact.component';
+import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
 
 @Component({
   selector: 'app-deck-card',
-  imports: [UserProfileCompactComponent, DialogModule, ButtonModule],
+  imports: [UserProfileCompactComponent, DialogModule, ButtonModule, CardImageComponent],
   templateUrl: './deck-preview.component.html',
   host: { class: 'block' },
 })
 export class DeckPreviewComponent {
-  private readonly cardImageService = inject(CardImageService);
   private readonly authService = inject(AuthService);
   private readonly deckService = inject(DeckService);
   private readonly router = inject(Router);
@@ -46,11 +45,6 @@ export class DeckPreviewComponent {
       },
       error: () => this.deleting.set(false),
     });
-  }
-
-  get heroImageUrl(): string {
-    const hero = this.deck().hero;
-    return this.cardImageService.getCardImageUrl(hero);
   }
 
   get rating(): number {

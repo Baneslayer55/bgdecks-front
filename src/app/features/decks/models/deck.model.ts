@@ -1,32 +1,12 @@
-import { SetInfoDto } from '../../../shared/models/card.model';
+import { CardDto } from '../../../shared/models/card.model';
 
-export interface CardShortDto {
-  id: number;
-  name: string;
-  number: number;
-  variant: string;
-  isFoil: boolean;
-  imageMd5: string;
-  setInfo: SetInfoDto;
-}
+export type { CardDto } from '../../../shared/models/card.model';
 
 export interface DeckFormatDto {
   id: number;
   name: string;
   description: string;
   isPublicFormat: boolean;
-}
-
-export interface CardDto {
-  id: number;
-  name: string;
-  rarity?: string;
-  number?: number;
-  variant?: string;
-  isFoil?: boolean;
-  isLimited?: boolean;
-  imageMd5: string;
-  setInfo: SetInfoDto;
 }
 
 export interface UserProfileDto {

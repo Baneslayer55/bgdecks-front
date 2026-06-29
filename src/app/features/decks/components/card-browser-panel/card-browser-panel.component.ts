@@ -16,10 +16,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CardSearchService } from '../../../cards/services/card-search.service';
 import { CardFiltersComponent } from '../../../cards/components/card-filters/card-filters.component';
 import { CardItemComponent } from '../../../cards/components/card-item/card-item.component';
-import { Card, CardSearchRequest } from '../../../cards/models/card-search.model';
+import { CardDto, CardSearchRequest } from '../../../cards/models/card-search.model';
 
 export interface CardAddedEvent {
-  card: Card;
+  card: CardDto;
   position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
 }
 
@@ -28,7 +28,7 @@ interface LastAdded {
   position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
 }
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 60;
 
 @Component({
   selector: 'app-card-browser-panel',
@@ -46,7 +46,7 @@ export class CardBrowserPanelComponent implements OnInit, OnDestroy {
   readonly panelOpen         = signal(false);
   readonly panelHeight       = signal(Math.round(window.innerHeight * 0.5));
   readonly loading           = signal(false);
-  readonly cards             = signal<Card[]>([]);
+  readonly cards             = signal<CardDto[]>([]);
   readonly totalElements     = signal(0);
   readonly page              = signal(0);
   readonly isMobile          = signal(window.innerWidth < 768);
@@ -116,7 +116,7 @@ export class CardBrowserPanelComponent implements OnInit, OnDestroy {
     this.search();
   }
 
-  addCard(card: Card, position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD'): void {
+  addCard(card: CardDto, position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD'): void {
     this.cardAdded.emit({ card, position });
     clearTimeout(this.lastAddedTimeout);
     this.lastAdded.set({ cardId: card.id, position });

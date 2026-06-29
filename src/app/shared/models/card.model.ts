@@ -25,7 +25,7 @@ export interface CardParamsDto {
   elements?: string[];
 }
 
-export interface Card {
+export interface CardDto {
   id: number;
   name: string;
   rarity?: string;

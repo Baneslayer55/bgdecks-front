@@ -1,7 +1,7 @@
-import { Component, computed, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { Menubar, MenubarModule } from 'primeng/menubar';
+import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../features/auth/services/auth/auth.service';
 import { Subscription } from 'rxjs';
@@ -9,47 +9,38 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ButtonModule, RouterLink, MenubarModule],
+  imports: [ButtonModule, RouterLink, MenuModule],
   templateUrl: './navbar.component.html',
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  @ViewChild('menubar') menubar!: Menubar;
+  @ViewChild('decksMenu') decksMenu!: Menu;
 
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private routerSub!: Subscription;
 
-  readonly navItems = computed<MenuItem[]>(() => {
-    const decksItems: MenuItem[] = [
+  readonly decksMenuItems = computed<MenuItem[]>(() => {
+    const items: MenuItem[] = [
       {
         label: 'Пользователей',
         icon: 'pi pi-th-large',
         command: () => this.router.navigate(['/decks/public']),
       },
     ];
-
     if (this.authService.isAuthenticated()) {
-      decksItems.push({
+      items.push({
         label: 'Мои',
         icon: 'pi pi-folder',
         command: () => this.router.navigate(['/decks/my']),
       });
     }
-
-    return [
-      { label: 'Колоды', icon: 'pi pi-clone', items: decksItems },
-      {
-        label: 'База карт',
-        icon: 'pi pi-images',
-        command: () => this.router.navigate(['/cards']),
-      },
-    ];
+    return items;
   });
 
   ngOnInit(): void {
     this.routerSub = this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(() => this.menubar?.hide());
+      .subscribe(() => this.decksMenu?.hide());
   }
 
   ngOnDestroy(): void {

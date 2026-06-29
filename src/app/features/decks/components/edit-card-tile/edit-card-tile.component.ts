@@ -1,20 +1,12 @@
-import { Component, computed, inject, input, output } from '@angular/core';
-import { CardImageService } from '../../../cards/services/card-image.service';
+import { Component, input, output } from '@angular/core';
 import { DeckCardDto } from '../../models/deck.model';
-import { Card } from '../../../../shared/models/card.model';
+import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
 
 @Component({
   selector: 'app-edit-card-tile',
-  imports: [],
+  imports: [CardImageComponent],
   template: `
-    <img
-      [src]="imageUrl()"
-      [alt]="entry().card.name"
-      class="w-full h-full object-cover object-top"
-      loading="lazy"
-      draggable="false"
-      (error)="$any($event.target).style.display='none'"
-    />
+    <app-card-image [card]="entry().card" [deckFormat]="deckFormat()" class="absolute inset-0" />
     <button
       type="button"
       class="absolute top-1 right-1 w-5 h-5 flex items-center justify-center rounded-full"
@@ -46,13 +38,9 @@ import { Card } from '../../../../shared/models/card.model';
   },
 })
 export class EditCardTileComponent {
-  private readonly cardImageService = inject(CardImageService);
   readonly entry = input.required<DeckCardDto>();
+  readonly deckFormat = input<string | null>(null);
   readonly removed = output<void>();
   readonly incremented = output<void>();
   readonly decremented = output<void>();
-
-  readonly imageUrl = computed(() =>
-    this.cardImageService.getCardImageUrl(this.entry().card as Card),
-  );
 }

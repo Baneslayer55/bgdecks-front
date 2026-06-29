@@ -1,17 +1,13 @@
-import { Component, inject, input } from '@angular/core';
-import { Card } from '../../../../shared/models/card.model';
-import { CardImageService } from '../../services/card-image.service';
+import { Component, input } from '@angular/core';
+import { CardDto } from '../../../../shared/models/card.model';
+import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
 
 @Component({
   selector: 'app-card-item',
+  imports: [CardImageComponent],
   templateUrl: './card-item.component.html',
   host: { class: 'block' },
 })
 export class CardItemComponent {
-  private readonly cardImageService = inject(CardImageService);
-  readonly card = input.required<Card>();
-
-  get imageUrl(): string {
-    return this.cardImageService.getCardImageUrl(this.card());
-  }
+  readonly card = input.required<CardDto>();
 }

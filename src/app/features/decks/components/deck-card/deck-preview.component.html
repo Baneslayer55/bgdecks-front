@@ -3,13 +3,11 @@
   style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
 >
   <!-- Hero image -->
-  <img
-    [src]="heroImageUrl"
-    [alt]="deck().hero?.name"
-    class="w-40 shrink-0 object-cover object-top rounded-l-lg cursor-pointer"
+  <app-card-image
+    [card]="deck().hero"
+    class="w-40 shrink-0 rounded-l-lg cursor-pointer"
     style="aspect-ratio: 2/3"
     (click)="navigateToDeck()"
-    (error)="$any($event.target).style.display='none'"
   />
 
   <!-- Deck info -->

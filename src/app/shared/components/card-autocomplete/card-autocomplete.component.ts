@@ -2,7 +2,7 @@ import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { DeckService } from '../../../features/decks/services/deck.service';
-import { CardShortDto } from '../../../features/decks/models/deck.model';
+import { CardDto } from '../../models/card.model';
 
 @Component({
   selector: 'app-card-autocomplete',
@@ -16,10 +16,10 @@ export class CardAutocompleteComponent {
   readonly placeholder = input('Поиск...');
   readonly resetTrigger = input<number>(0);
   readonly cardSelected = output<number | null>();
-  readonly cardObjectSelected = output<CardShortDto | null>();
+  readonly cardObjectSelected = output<CardDto | null>();
 
-  readonly suggestions = signal<CardShortDto[]>([]);
-  selected: CardShortDto | null = null;
+  readonly suggestions = signal<CardDto[]>([]);
+  selected: CardDto | null = null;
 
   constructor() {
     effect(() => {
@@ -42,7 +42,7 @@ export class CardAutocompleteComponent {
   }
 
   onSelect(event: AutoCompleteSelectEvent): void {
-    const card = event.value as CardShortDto;
+    const card = event.value as CardDto;
     this.cardSelected.emit(card.id);
     this.cardObjectSelected.emit(card);
   }

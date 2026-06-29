@@ -51,12 +51,12 @@
 
       @if (editMode()) {
         @if (editHeroCard() && !editHeroError()) {
-          <img
-            [src]="editHeroImageUrl()"
-            [alt]="editHeroCard()!.name"
-            class="w-full rounded-xl object-cover object-top"
+          <app-card-image
+            [card]="editHeroCard()"
+            [deckFormat]="deckFormatName()"
+            class="w-full rounded-xl"
             style="aspect-ratio: 2/3"
-            (error)="editHeroError.set(true)"
+            (imageError)="editHeroError.set(true)"
           />
         } @else {
           <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
@@ -71,12 +71,11 @@
         />
       } @else {
         @if (d.hero) {
-          <img
-            [src]="heroImageUrl()"
-            [alt]="d.hero.name"
-            class="w-full rounded-xl object-cover object-top"
+          <app-card-image
+            [card]="d.hero"
+            [deckFormat]="deckFormatName()"
+            class="w-full rounded-xl"
             style="aspect-ratio: 2/3"
-            (error)="$any($event.target).style.display='none'"
           />
         } @else {
           <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
@@ -122,6 +121,7 @@
                   cdkDrag
                   [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
+                  [deckFormat]="deckFormatName()"
                   (removed)="removeCard(entry.card.id, 'MAIN')"
                   (incremented)="adjustCount(entry.card.id, 'MAIN', 1)"
                   (decremented)="adjustCount(entry.card.id, 'MAIN', -1)"
@@ -159,6 +159,7 @@
                   cdkDrag
                   [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
+                  [deckFormat]="deckFormatName()"
                   (removed)="removeCard(entry.card.id, 'SIDEBOARD')"
                   (incremented)="adjustCount(entry.card.id, 'SIDEBOARD', 1)"
                   (decremented)="adjustCount(entry.card.id, 'SIDEBOARD', -1)"
@@ -196,6 +197,7 @@
                   cdkDrag
                   [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
+                  [deckFormat]="deckFormatName()"
                   (removed)="removeCard(entry.card.id, 'MAYBEBOARD')"
                   (incremented)="adjustCount(entry.card.id, 'MAYBEBOARD', 1)"
                   (decremented)="adjustCount(entry.card.id, 'MAYBEBOARD', -1)"
@@ -218,7 +220,7 @@
               </h2>
               <div class="grid gap-2" [style.grid-template-columns]="mainGridCols()">
                 @for (entry of mainCards(); track entry.card.id) {
-                  <app-deck-card-entry [entry]="entry" />
+                  <app-deck-card-entry [entry]="entry" [deckFormat]="deckFormatName()" />
                 }
               </div>
             </div>
@@ -232,7 +234,7 @@
               </h2>
               <div class="grid gap-2" [style.grid-template-columns]="sideboardGridCols()">
                 @for (entry of sideboardCards(); track entry.card.id) {
-                  <app-deck-card-entry [entry]="entry" />
+                  <app-deck-card-entry [entry]="entry" [deckFormat]="deckFormatName()" />
                 }
               </div>
             </div>
@@ -246,7 +248,7 @@
               </h2>
               <div class="grid gap-2" [style.grid-template-columns]="maybeGridCols()">
                 @for (entry of maybeboardCards(); track entry.card.id) {
-                  <app-deck-card-entry [entry]="entry" />
+                  <app-deck-card-entry [entry]="entry" [deckFormat]="deckFormatName()" />
                 }
               </div>
             </div>

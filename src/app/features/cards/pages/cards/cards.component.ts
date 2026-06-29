@@ -7,7 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CardSearchService } from '../../services/card-search.service';
 import { CardFiltersComponent } from '../../components/card-filters/card-filters.component';
 import { CardItemComponent } from '../../components/card-item/card-item.component';
-import { Card, CardSearchRequest } from '../../models/card-search.model';
+import { CardDto, CardSearchRequest } from '../../models/card-search.model';
 
 const CARD_MIN_WIDTH = 200;
 const CARD_GAP = 12;
@@ -34,7 +34,7 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('mainContainer') private mainContainerRef!: ElementRef<HTMLElement>;
 
-  readonly cards         = signal<Card[]>([]);
+  readonly cards         = signal<CardDto[]>([]);
   readonly totalElements = signal(0);
   readonly loading       = signal(false);
   readonly page          = signal(0);

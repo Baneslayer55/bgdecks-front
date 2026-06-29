@@ -1,15 +1,9 @@
 <div class="relative rounded-xl overflow-hidden" style="aspect-ratio: 2/3">
-  <img
-    [src]="imageUrl()"
-    [alt]="entry().card.name"
-    class="w-full h-full object-cover"
-    loading="lazy"
-    (error)="$any($event.target).style.display='none'"
-  />
-    <div
-      class="absolute bottom-0 left-0 right-0 flex items-center justify-center py-1"
-      style="background: rgba(0,0,0,0.65)"
-    >
-      <span class="text-xs font-bold" style="color: #fff">×{{ entry().cardsCount }}</span>
-    </div>
+  <app-card-image [card]="entry().card" [deckFormat]="deckFormat()" />
+  <div
+    class="absolute bottom-0 left-0 right-0 flex items-center justify-center py-1"
+    style="background: rgba(0,0,0,0.65)"
+  >
+    <span class="text-xs font-bold" style="color: #fff">×{{ entry().cardsCount }}</span>
+  </div>
 </div>
