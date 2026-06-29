@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
@@ -68,6 +68,29 @@ export class DeckDetailComponent {
   readonly addMaybeTrigger = signal(0);
   readonly heroResetTrigger = signal(0);
 
+  readonly isMobile = signal(window.innerWidth < 768);
+
+  readonly mainGridCols = computed(() =>
+    this.isMobile()
+      ? 'repeat(auto-fit, minmax(120px, 150px))'
+      : 'repeat(auto-fit, minmax(160px, 200px))',
+  );
+  readonly maybeGridCols = computed(() =>
+    this.isMobile()
+      ? 'repeat(auto-fill, minmax(120px, 135px))'
+      : 'repeat(auto-fill, minmax(160px, 180px))',
+  );
+  readonly sideboardGridCols = computed(() =>
+    this.isMobile()
+      ? 'repeat(auto-fill, minmax(120px, 150px))'
+      : 'repeat(auto-fill, minmax(160px, 200px))',
+  );
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isMobile.set(window.innerWidth < 768);
+  }
+
   private readonly change$ = new Subject<void>();
 
   readonly isOwner = computed(() => {
@@ -94,6 +117,14 @@ export class DeckDetailComponent {
   readonly maybeboardCards = computed<DeckCardDto[]>(() =>
     this.deck()?.cards.filter((c) => c.position === 'MAYBEBOARD') ?? [],
   );
+
+  readonly mainCardsTotal       = computed(() => this.mainCards().reduce((s, e) => s + e.cardsCount, 0));
+  readonly sideboardCardsTotal  = computed(() => this.sideboardCards().reduce((s, e) => s + e.cardsCount, 0));
+  readonly maybeboardCardsTotal = computed(() => this.maybeboardCards().reduce((s, e) => s + e.cardsCount, 0));
+
+  readonly editMainTotal       = computed(() => this.editMain().reduce((s, e) => s + e.cardsCount, 0));
+  readonly editSideboardTotal  = computed(() => this.editSideboard().reduce((s, e) => s + e.cardsCount, 0));
+  readonly editMaybeTotal      = computed(() => this.editMaybeboard().reduce((s, e) => s + e.cardsCount, 0));
 
 
   readonly listIds = LIST_IDS;

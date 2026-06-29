@@ -97,7 +97,7 @@
           <div class="flex-1 min-w-0" style="max-width: 1456px">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
-                Основная колода <span style="color: var(--p-surface-500)">({{ editMain().length }})</span>
+                Основная колода <span style="color: var(--p-surface-500)">({{ editMainTotal() }})</span>
               </h2>
               <app-card-autocomplete
                 searchMode="NON_HEROES"
@@ -114,11 +114,13 @@
               [cdkDropListData]="editMain()"
               (cdkDropListDropped)="onDrop($event)"
               class="grid gap-2 min-h-16 rounded-lg p-1"
-              style="background: var(--p-surface-950); grid-template-columns: repeat(auto-fit, minmax(160px, 200px))"
+              style="background: var(--p-surface-950)"
+              [style.grid-template-columns]="mainGridCols()"
             >
               @for (entry of editMain(); track entry.card.id) {
                 <app-edit-card-tile
                   cdkDrag
+                  [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
                   (removed)="removeCard(entry.card.id, 'MAIN')"
                   (incremented)="adjustCount(entry.card.id, 'MAIN', 1)"
@@ -129,10 +131,10 @@
           </div>
 
           <!-- SIDEBOARD (edit) -->
-          <div class="shrink-0" style="width: 408px">
+          <div class="shrink-0" [style.width]="isMobile() ? '100%' : '408px'">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
-                Сайдборд <span style="color: var(--p-surface-500)">({{ editSideboard().length }})</span>
+                Сайдборд <span style="color: var(--p-surface-500)">({{ editSideboardTotal() }})</span>
               </h2>
               <app-card-autocomplete
                 searchMode="NON_HEROES"
@@ -148,12 +150,14 @@
               [cdkDropListConnectedTo]="[listIds.MAIN, listIds.MAYBEBOARD]"
               [cdkDropListData]="editSideboard()"
               (cdkDropListDropped)="onDrop($event)"
-              class="grid grid-cols-2 gap-2 min-h-16 rounded-lg p-1"
+              class="grid gap-2 min-h-16 rounded-lg p-1"
               style="background: var(--p-surface-950)"
+              [style.grid-template-columns]="sideboardGridCols()"
             >
               @for (entry of editSideboard(); track entry.card.id) {
                 <app-edit-card-tile
                   cdkDrag
+                  [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
                   (removed)="removeCard(entry.card.id, 'SIDEBOARD')"
                   (incremented)="adjustCount(entry.card.id, 'SIDEBOARD', 1)"
@@ -167,7 +171,7 @@
           <div class="w-full">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
-                Кандидаты <span style="color: var(--p-surface-500)">({{ editMaybeboard().length }})</span>
+                Кандидаты <span style="color: var(--p-surface-500)">({{ editMaybeTotal() }})</span>
               </h2>
               <app-card-autocomplete
                 searchMode="NON_HEROES"
@@ -184,12 +188,13 @@
               [cdkDropListData]="editMaybeboard()"
               (cdkDropListDropped)="onDrop($event)"
               class="grid gap-2 min-h-16 rounded-lg p-1"
-              [style.grid-template-columns]="'repeat(auto-fill, minmax(160px, 180px))'"
+              [style.grid-template-columns]="maybeGridCols()"
               style="background: var(--p-surface-950)"
             >
               @for (entry of editMaybeboard(); track entry.card.id) {
                 <app-edit-card-tile
                   cdkDrag
+                  [cdkDragDisabled]="isMobile()"
                   [entry]="entry"
                   (removed)="removeCard(entry.card.id, 'MAYBEBOARD')"
                   (incremented)="adjustCount(entry.card.id, 'MAYBEBOARD', 1)"
@@ -209,9 +214,9 @@
           @if (mainCards().length) {
             <div class="flex-1 min-w-0" style="max-width: 1456px">
               <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-                Основная колода <span style="color: var(--p-surface-500)">({{ mainCards().length }})</span>
+                Основная колода <span style="color: var(--p-surface-500)">({{ mainCardsTotal() }})</span>
               </h2>
-              <div class="grid gap-2" style="grid-template-columns: repeat(auto-fit, minmax(160px, 200px))">
+              <div class="grid gap-2" [style.grid-template-columns]="mainGridCols()">
                 @for (entry of mainCards(); track entry.card.id) {
                   <app-deck-card-entry [entry]="entry" />
                 }
@@ -221,11 +226,11 @@
 
           <!-- SIDEBOARD (view) -->
           @if (sideboardCards().length) {
-            <div class="shrink-0" style="width: 408px">
+            <div class="shrink-0" [style.width]="isMobile() ? '100%' : '408px'">
               <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-                Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCards().length }})</span>
+                Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCardsTotal() }})</span>
               </h2>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid gap-2" [style.grid-template-columns]="sideboardGridCols()">
                 @for (entry of sideboardCards(); track entry.card.id) {
                   <app-deck-card-entry [entry]="entry" />
                 }
@@ -237,9 +242,9 @@
           @if (maybeboardCards().length) {
             <div class="w-full">
               <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-                Кандидаты <span style="color: var(--p-surface-500)">({{ maybeboardCards().length }})</span>
+                Кандидаты <span style="color: var(--p-surface-500)">({{ maybeboardCardsTotal() }})</span>
               </h2>
-              <div class="grid gap-2" [style.grid-template-columns]="'repeat(auto-fill, minmax(160px, 180px))'">
+              <div class="grid gap-2" [style.grid-template-columns]="maybeGridCols()">
                 @for (entry of maybeboardCards(); track entry.card.id) {
                   <app-deck-card-entry [entry]="entry" />
                 }

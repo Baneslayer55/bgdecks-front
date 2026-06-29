@@ -39,10 +39,10 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly loading       = signal(false);
   readonly page          = signal(0);
   readonly columns       = signal(1);
-  readonly cardMinWidth  = signal(CARD_MIN_WIDTH);
+  readonly cardMinWidth  = computed(() => (this.isMobile() ? 160 : CARD_MIN_WIDTH));
   readonly rows          = signal(ROWS_LARGE);
   readonly pageSize      = computed(() => this.columns() * this.rows());
-  readonly filtersOpen   = signal(true);
+  readonly filtersOpen   = signal(window.innerWidth >= 800);
   readonly isMobile      = signal(window.innerWidth < 800);
 
   private currentFilters: CardSearchRequest = {};
@@ -68,7 +68,7 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width;
-      const cols = Math.max(1, Math.floor((width + CARD_GAP) / (CARD_MIN_WIDTH + CARD_GAP)));
+      const cols = Math.max(1, Math.floor((width + CARD_GAP) / (this.cardMinWidth() + CARD_GAP)));
       const rows = window.innerWidth < 800 ? ROWS_SMALL : ROWS_LARGE;
       if (cols !== this.columns() || rows !== this.rows()) {
         this.columns.set(cols);

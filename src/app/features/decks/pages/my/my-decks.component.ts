@@ -65,7 +65,7 @@ export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly columns = signal(1);
   readonly rows = signal(ROWS_LARGE);
   readonly pageSize = computed(() => this.columns() * this.rows());
-  readonly filtersOpen = signal(true);
+  readonly filtersOpen = signal(window.innerWidth >= 800);
   readonly isMobile = signal(window.innerWidth < 800);
   readonly resetTrigger = signal(0);
   readonly createDialogVisible = signal(false);
