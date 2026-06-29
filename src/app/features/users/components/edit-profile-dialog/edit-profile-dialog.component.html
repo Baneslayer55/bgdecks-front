@@ -1,0 +1,121 @@
+<p-dialog
+  [(visible)]="visible"
+  header="Редактировать профиль"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="w-full max-w-lg"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 pt-2">
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-100)">Имя пользователя</label>
+      <input
+        pInputText
+        formControlName="username"
+        placeholder="username"
+        class="w-full"
+        [class.ng-invalid]="isInvalid('username')"
+        [class.ng-dirty]="isInvalid('username')"
+      />
+      @if (isInvalid('username')) {
+        <span class="text-xs" style="color: var(--p-red-400)">{{ getError('username') }}</span>
+      }
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Имя</label>
+        <input
+          pInputText
+          formControlName="firstName"
+          placeholder="Иван"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('firstName')"
+          [class.ng-dirty]="isInvalid('firstName')"
+        />
+        @if (isInvalid('firstName')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('firstName') }}</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Фамилия</label>
+        <input
+          pInputText
+          formControlName="lastName"
+          placeholder="Иванов"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('lastName')"
+          [class.ng-dirty]="isInvalid('lastName')"
+        />
+        @if (isInvalid('lastName')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('lastName') }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-100)">Город</label>
+      <input
+        pInputText
+        formControlName="city"
+        placeholder="Москва"
+        class="w-full"
+        [class.ng-invalid]="isInvalid('city')"
+        [class.ng-dirty]="isInvalid('city')"
+      />
+      @if (isInvalid('city')) {
+        <span class="text-xs" style="color: var(--p-red-400)">{{ getError('city') }}</span>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-100)">Telegram</label>
+      <input
+        pInputText
+        formControlName="telegram"
+        placeholder="https://t.me/username"
+        class="w-full"
+        [class.ng-invalid]="isInvalid('telegram')"
+        [class.ng-dirty]="isInvalid('telegram')"
+      />
+      @if (isInvalid('telegram')) {
+        <span class="text-xs" style="color: var(--p-red-400)">{{ getError('telegram') }}</span>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-100)">ВКонтакте</label>
+      <input
+        pInputText
+        formControlName="vk"
+        placeholder="https://vk.com/id"
+        class="w-full"
+        [class.ng-invalid]="isInvalid('vk')"
+        [class.ng-dirty]="isInvalid('vk')"
+      />
+      @if (isInvalid('vk')) {
+        <span class="text-xs" style="color: var(--p-red-400)">{{ getError('vk') }}</span>
+      }
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2 justify-end">
+      <p-button
+        label="Отмена"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="visible.set(false)"
+      />
+      <p-button
+        label="Сохранить"
+        [disabled]="form.invalid || loading()"
+        [loading]="loading()"
+        (onClick)="onSubmit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

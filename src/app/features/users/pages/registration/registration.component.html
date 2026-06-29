@@ -1,0 +1,115 @@
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md rounded-lg p-8" style="background-color: var(--p-surface-800); border: 1px solid var(--p-surface-700)">
+    <h1 class="text-2xl font-bold mb-6" style="color: var(--p-surface-0)">Регистрация</h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Email *</label>
+        <input
+          pInputText
+          formControlName="email"
+          type="email"
+          placeholder="you@example.com"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('email')"
+          [class.ng-dirty]="isInvalid('email')"
+        />
+        @if (isInvalid('email')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('email') }}</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Пароль *</label>
+        <p-password
+          formControlName="password"
+          placeholder="Минимум 8 символов"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [class.ng-invalid]="isInvalid('password')"
+          [class.ng-dirty]="isInvalid('password')"
+        />
+        @if (isInvalid('password')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('password') }}</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Имя пользователя *</label>
+        <input
+          pInputText
+          formControlName="username"
+          placeholder="username"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('username')"
+          [class.ng-dirty]="isInvalid('username')"
+        />
+        @if (isInvalid('username')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('username') }}</span>
+        } @else {
+          <span class="text-xs" style="color: var(--p-surface-300)">
+            Буква в начале и конце, можно . _ и цифры
+          </span>
+        }
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm" style="color: var(--p-surface-100)">Имя</label>
+          <input
+            pInputText
+            formControlName="firstName"
+            placeholder="Иван"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('firstName')"
+            [class.ng-dirty]="isInvalid('firstName')"
+          />
+          @if (isInvalid('firstName')) {
+            <span class="text-xs" style="color: var(--p-red-400)">{{ getError('firstName') }}</span>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-sm" style="color: var(--p-surface-100)">Фамилия</label>
+          <input
+            pInputText
+            formControlName="lastName"
+            placeholder="Иванов"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('lastName')"
+            [class.ng-dirty]="isInvalid('lastName')"
+          />
+          @if (isInvalid('lastName')) {
+            <span class="text-xs" style="color: var(--p-red-400)">{{ getError('lastName') }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Город</label>
+        <input
+          pInputText
+          formControlName="city"
+          placeholder="Москва"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('city')"
+          [class.ng-dirty]="isInvalid('city')"
+        />
+        @if (isInvalid('city')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('city') }}</span>
+        }
+      </div>
+
+      <p-button
+        type="submit"
+        label="Зарегистрироваться"
+        styleClass="w-full mt-2"
+        [disabled]="form.invalid || loading()"
+        [loading]="loading()"
+      />
+    </form>
+  </div>
+</div>

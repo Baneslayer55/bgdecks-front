@@ -1,0 +1,23 @@
+<div
+  class="rounded-3xl overflow-hidden border relative"
+  style="background: var(--p-surface-800); border-color: var(--p-surface-600)"
+>
+  @if (imageUrl) {
+    <img
+      [src]="imageUrl"
+      [alt]="card().name"
+      class="w-full h-auto block"
+      loading="lazy"
+    />
+  } @else {
+    <div class="aspect-[3/4] flex items-center justify-center" style="color: var(--p-surface-400)">
+      <i class="pi pi-image text-4xl"></i>
+    </div>
+  }
+
+  @if (card().isFoil) {
+    <div class="absolute top-1.5 right-1.5">
+      <i class="pi pi-star-fill text-sm" style="color: #f59e0b; filter: drop-shadow(0 0 4px #f59e0b88)"></i>
+    </div>
+  }
+</div>

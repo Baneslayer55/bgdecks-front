@@ -1,0 +1,24 @@
+<p-menubar #menubar [model]="navItems()"
+  styleClass="rounded-none border-x-0 border-t-0 px-4"
+  style="background-color: var(--p-surface-900); border-color: var(--p-surface-700)">
+
+  <ng-template #start>
+    <a routerLink="/" class="text-lg font-semibold tracking-wide mr-2 no-underline"
+       style="color: var(--p-surface-0)">BGDecks</a>
+  </ng-template>
+
+  <ng-template #end>
+    <div class="flex items-center gap-2">
+      @if (authService.isAuthenticated()) {
+        <span class="text-sm hidden sm:block" style="color: var(--p-surface-200)">
+          {{ authService.getUsername() }}
+        </span>
+        <p-button label="Выйти" severity="secondary" size="small" (onClick)="logout()" />
+      } @else {
+        <p-button label="Регистрация" size="small" routerLink="/registration" />
+        <p-button label="Войти" size="small" (onClick)="login()" />
+      }
+    </div>
+  </ng-template>
+
+</p-menubar>

@@ -1,0 +1,20 @@
+<p-autocomplete
+  [(ngModel)]="selected"
+  [suggestions]="suggestions()"
+  (completeMethod)="search($event)"
+  (onSelect)="onSelect($event)"
+  (onClear)="onClear()"
+  [placeholder]="placeholder()"
+  [showClear]="true"
+  optionLabel="name"
+  appendTo="body"
+  styleClass="w-full text-sm"
+  [inputStyle]="{'width': '100%', 'font-size': '0.875rem'}"
+>
+  <ng-template #item let-card>
+    <div class="flex flex-col py-0.5">
+      <span class="text-sm" style="color: var(--p-surface-50)">{{ card.name }}</span>
+      <span class="text-xs" style="color: var(--p-surface-400)">{{ card.setInfo.name }}</span>
+    </div>
+  </ng-template>
+</p-autocomplete>

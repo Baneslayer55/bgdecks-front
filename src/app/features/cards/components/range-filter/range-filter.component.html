@@ -1,0 +1,28 @@
+<div class="flex items-center gap-2">
+  @if (iconSrc()) {
+    <img [src]="iconSrc()" [alt]="label()" class="shrink-0 object-contain" style="width: 18px; height: 18px" />
+  } @else {
+    <p class="text-xs shrink-0" style="color: var(--p-surface-200)">{{ label() }}</p>
+  }
+  <div class="flex gap-1.5">
+    <p-select
+      [options]="operators"
+      [(ngModel)]="operatorModel"
+      (ngModelChange)="onChanged()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="—"
+      styleClass="text-sm w-20"
+    />
+    <p-inputnumber
+      [(ngModel)]="numberModel"
+      (ngModelChange)="onChanged()"
+      [min]="0"
+      [max]="99"
+      [useGrouping]="false"
+      placeholder="0–99"
+      styleClass="text-sm w-20"
+      [inputStyle]="{'width': '5rem', 'font-size': '0.875rem', 'line-height': '1'}"
+    />
+  </div>
+</div>

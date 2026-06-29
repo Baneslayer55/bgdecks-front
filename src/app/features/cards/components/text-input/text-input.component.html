@@ -1,0 +1,29 @@
+<div>
+  <textarea
+    #ta
+    class="w-full resize-none rounded px-3 py-2 text-sm outline-none border transition-colors"
+    style="
+      background: var(--p-surface-800);
+      border-color: var(--p-surface-500);
+      color: var(--p-surface-0);
+      min-height: 4.5rem;
+    "
+    rows="3"
+    [ngModel]="value()"
+    (ngModelChange)="value.set($event)"
+    placeholder="Текст способности..."
+  ></textarea>
+
+  <div class="flex flex-wrap gap-1 mt-1">
+    @for (h of helpers(); track h.token) {
+      <button
+        type="button"
+        class="rounded p-0.5 transition-opacity hover:opacity-80 cursor-pointer"
+        [title]="h.token"
+        (click)="insertToken(h.token)"
+      >
+        <img [src]="imageDir() + '/' + h.file" [alt]="h.token" class="w-6 h-6 object-contain" />
+      </button>
+    }
+  </div>
+</div>

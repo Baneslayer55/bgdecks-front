@@ -1,0 +1,18 @@
+<div class="grid" [style.gap.px]="gapPx()" [style.grid-template-columns]="'repeat(' + gridCols() + ', auto)'">
+  @for (opt of options(); track opt.value) {
+    <button
+      type="button"
+      class="p-0.5 rounded transition-opacity cursor-pointer"
+      [class.opacity-25]="!isSelected(opt.value)"
+      [title]="opt.label"
+      (click)="toggle(opt.value)"
+    >
+      <img
+        [src]="imageDir() + '/' + opt.file"
+        [alt]="opt.label"
+        class="object-contain"
+        style="width: 25px; height: 25px"
+      />
+    </button>
+  }
+</div>
