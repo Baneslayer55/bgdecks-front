@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { CARDS_API_BASE_URL } from '../../../../shared/api.config';
+import { API_BASE_URL } from '../../../../shared/api.config';
 import { DeckPreviewDto } from '../../models/deck.model';
 
 @Component({
@@ -8,7 +8,7 @@ import { DeckPreviewDto } from '../../models/deck.model';
   host: { class: 'block' },
 })
 export class DeckCardComponent {
-  private readonly baseUrl = inject(CARDS_API_BASE_URL);
+  private readonly baseUrl = inject(API_BASE_URL);
   readonly deck = input.required<DeckPreviewDto>();
 
   get heroImageUrl(): string {

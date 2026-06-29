@@ -1,18 +1,17 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { catchError, from, of, switchMap, throwError } from 'rxjs';
-import { API_BASE_URL, CARDS_API_BASE_URL } from '../../../shared/api.config';
+import { catchError, from, switchMap, throwError } from 'rxjs';
+import { API_BASE_URL } from '../../../shared/api.config';
 import { TokenStorageService } from '../services/token-storage/token-storage.service';
 import { AuthService } from '../services/auth/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const apiBaseUrl = inject(API_BASE_URL);
-  const cardsApiBaseUrl = inject(CARDS_API_BASE_URL);
+
   const tokenStorage = inject(TokenStorageService);
   const authService = inject(AuthService);
 
-  const isProtected =
-    req.url.startsWith(apiBaseUrl) || req.url.startsWith(cardsApiBaseUrl);
+  const isProtected = req.url.startsWith(apiBaseUrl);
   if (!isProtected) {
     return next(req);
   }

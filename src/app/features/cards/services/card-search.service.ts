@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CARDS_API_BASE_URL } from '../../../shared/api.config';
+import { API_BASE_URL } from '../../../shared/api.config';
 import { ArtistDto, SetInfoDto } from '../../../shared/models/card.model';
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class CardSearchService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = inject(CARDS_API_BASE_URL);
+  private readonly baseUrl = inject(API_BASE_URL);
 
   search(request: CardSearchRequest, page: number, size: number): Observable<PagedResponse<Card>> {
     const params = new HttpParams().set('page', page).set('size', size);

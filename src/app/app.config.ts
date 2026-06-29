@@ -7,7 +7,7 @@ import { definePreset, palette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
 import { routes } from './app.routes';
-import { API_BASE_URL, CARDS_API_BASE_URL } from './shared/api.config';
+import { API_BASE_URL } from './shared/api.config';
 import { KEYCLOAK_BASE_URL } from './shared/keycloak.config';
 import { authInterceptor } from './features/auth/interceptors/auth.interceptor';
 import { THEME } from './shared/theme.config';
@@ -29,8 +29,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    { provide: API_BASE_URL, useValue: 'https://www.berserkdeck.ru/dev/api' },
-    { provide: CARDS_API_BASE_URL, useValue: 'https://bgdecks.ru/api/v2' },
+    { provide: API_BASE_URL, useValue: 'https://bgdecks.ru/api/v2' },
     { provide: KEYCLOAK_BASE_URL, useValue: 'https://bgdecks.ru/auth' },
     MessageService,
     providePrimeNG({

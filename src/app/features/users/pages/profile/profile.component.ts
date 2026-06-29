@@ -2,7 +2,7 @@ import { Component, computed, inject, input, OnInit, signal } from '@angular/cor
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
-import { CARDS_API_BASE_URL } from '../../../../shared/api.config';
+import { API_BASE_URL } from '../../../../shared/api.config';
 import { AuthService } from '../../../auth/services/auth/auth.service';
 import { UserService } from '../../services/user.service';
 import { UserProfileModel } from '../../models/user.model';
@@ -15,7 +15,7 @@ import { EditProfileDialogComponent } from '../../components/edit-profile-dialog
 })
 export class ProfileComponent implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly cardsApiBaseUrl = inject(CARDS_API_BASE_URL);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
 
@@ -33,7 +33,7 @@ export class ProfileComponent implements OnInit {
 
   get avatarUrl(): string {
     const avatarId = this.profile()?.avatarId;
-    return avatarId ? `${this.cardsApiBaseUrl}/profiles/avatar/${avatarId}` : '';
+    return avatarId ? `${this.apiBaseUrl}/profiles/avatar/${avatarId}` : '';
   }
 
   get initials(): string {
