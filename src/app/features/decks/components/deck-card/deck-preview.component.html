@@ -1,14 +1,14 @@
 <div
-  class="flex rounded-lg border transition-colors cursor-pointer w-[350px]"
-  (click)="navigateToDeck()"
+  class="flex rounded-lg border transition-colors w-full"
   style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
 >
   <!-- Hero image -->
   <img
     [src]="heroImageUrl"
     [alt]="deck().hero?.name"
-    class="w-40 shrink-0 object-cover object-top rounded-l-lg"
+    class="w-40 shrink-0 object-cover object-top rounded-l-lg cursor-pointer"
     style="aspect-ratio: 2/3"
+    (click)="navigateToDeck()"
     (error)="$any($event.target).style.display='none'"
   />
 
@@ -16,7 +16,22 @@
   <div class="flex flex-col justify-between p-3 flex-1 min-w-0 overflow-hidden">
     <!-- Top: name, format, validity -->
     <div class="flex flex-col gap-1.5">
-      <span class="font-semibold text-base leading-tight" style="color: var(--p-surface-0)">{{ deck().name }}</span>
+      <div class="flex items-start justify-between gap-1">
+        <span
+          class="font-semibold text-base leading-tight cursor-pointer hover:underline"
+          style="color: var(--p-surface-0)"
+          (click)="navigateToDeck()"
+        >{{ deck().name }}</span>
+        @if (isOwner()) {
+          <button
+            type="button"
+            class="shrink-0 w-6 h-6 flex items-center justify-center rounded"
+            style="color: var(--p-surface-400)"
+            title="Удалить"
+            (click)="onDeleteClick($event)"
+          ><i class="pi pi-trash" style="font-size: 12px"></i></button>
+        }
+      </div>
 
       @if (deck().format) {
         <span class="text-xs" style="color: var(--p-surface-400)">{{ deck().format.name }}</span>
@@ -36,7 +51,7 @@
     <!-- Bottom: owner + stats -->
     <div class="flex flex-col gap-2">
       <app-user-profile-compact [profile]="deck().owner" />
-      <div class="flex gap-4">
+      <div class="flex gap-3">
         <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
           <i class="pi pi-clone text-xs"></i>
           {{ deck().mainCardsTotal }}<span style="color: var(--p-surface-500)">/{{ deck().sideboardCardsTotal }}</span>
@@ -53,3 +68,31 @@
     </div>
   </div>
 </div>
+
+<p-dialog
+  [visible]="confirmVisible()"
+  (visibleChange)="confirmVisible.set($event)"
+  header="Удаление колоды"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '400px' }"
+>
+  <p class="text-sm py-2" style="color: var(--p-surface-200)">
+    Вы точно хотите удалить колоду? Это действие нельзя будет отменить.
+  </p>
+  <ng-template #footer>
+    <p-button
+      label="Отмена"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="deleting()"
+      (onClick)="confirmVisible.set(false)"
+    />
+    <p-button
+      label="Удалить"
+      severity="danger"
+      [loading]="deleting()"
+      (onClick)="confirmDelete()"
+    />
+  </ng-template>
+</p-dialog>

@@ -9,6 +9,7 @@ import {
   DeckFormatDto,
   DeckSearchRequest,
   PagedDecks,
+  UpdateDeckCardsRequest,
 } from '../models/deck.model';
 
 @Injectable({ providedIn: 'root' })
@@ -36,5 +37,13 @@ export class DeckService {
 
   createDeck(request: CreateDeckRequest): Observable<number> {
     return this.http.post<number>(`${this.baseUrl}/decks`, request);
+  }
+
+  updateDeckCards(deckId: number, request: UpdateDeckCardsRequest): Observable<DeckDto> {
+    return this.http.put<DeckDto>(`${this.baseUrl}/decks/${deckId}/cards`, request);
+  }
+
+  deleteDeck(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/decks/${id}`);
   }
 }

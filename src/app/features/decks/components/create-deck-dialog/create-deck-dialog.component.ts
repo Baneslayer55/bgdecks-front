@@ -1,4 +1,4 @@
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, model, OnInit, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -19,13 +19,15 @@ import { FormatSelectComponent } from '../../../../shared/components/format-sele
   ],
   templateUrl: './create-deck-dialog.component.html',
 })
-export class CreateDeckDialogComponent {
+export class CreateDeckDialogComponent implements OnInit {
   private readonly deckService = inject(DeckService);
 
   readonly visible = model(false);
   readonly created = output<number>();
 
   readonly submitting = false;
+
+  private firstFormatId: number | null = null;
 
   readonly form = new FormGroup({
     deckName: new FormControl('', {
@@ -38,6 +40,15 @@ export class CreateDeckDialogComponent {
 
   get nameCtrl() { return this.form.controls.deckName; }
   get formatCtrl() { return this.form.controls.formatId; }
+
+  ngOnInit(): void {
+    this.deckService.getFormats().subscribe((formats) => {
+      if (formats.length > 0) {
+        this.firstFormatId = formats[0].id;
+        this.form.controls.formatId.setValue(this.firstFormatId);
+      }
+    });
+  }
 
   submit(): void {
     this.form.markAllAsTouched();
@@ -54,6 +65,6 @@ export class CreateDeckDialogComponent {
 
   close(): void {
     this.visible.set(false);
-    this.form.reset({ deckName: '', isPublic: false, formatId: null });
+    this.form.reset({ deckName: '', isPublic: false, formatId: this.firstFormatId });
   }
 }

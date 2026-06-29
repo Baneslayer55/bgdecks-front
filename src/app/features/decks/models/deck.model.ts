@@ -6,6 +6,7 @@ export interface CardShortDto {
   number: number;
   variant: string;
   isFoil: boolean;
+  imageMd5: string;
   setInfo: SetInfoDto;
 }
 
@@ -51,7 +52,7 @@ export interface DeckValidationDto {
 export interface DeckPreviewDto {
   id: number;
   name: string;
-  hero: CardDto;
+  hero: CardDto | null;
   owner: UserProfileDto;
   isPublic: boolean;
   isValid: boolean;
@@ -88,6 +89,17 @@ export interface DeckSearchRequest {
   folderId?: number;
   formatId?: number;
   heroElements?: string[];
+}
+
+export interface UpdateDeckCardItem {
+  cardId: number;
+  position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
+  cardsCount: number;
+}
+
+export interface UpdateDeckCardsRequest {
+  heroId: number;
+  cards: UpdateDeckCardItem[];
 }
 
 export interface PagedDecks {

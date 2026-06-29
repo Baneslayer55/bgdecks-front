@@ -15,16 +15,22 @@
         pInputText
         formControlName="deckName"
         placeholder="Введите название..."
+        maxlength="32"
         class="w-full text-sm"
         [class.ng-invalid]="nameCtrl.invalid && nameCtrl.touched"
       />
-      @if (nameCtrl.touched && nameCtrl.hasError('required')) {
-        <span class="text-xs" style="color: var(--p-red-400)">Обязательное поле</span>
-      } @else if (nameCtrl.touched && nameCtrl.hasError('minlength')) {
-        <span class="text-xs" style="color: var(--p-red-400)">Минимум 3 символа</span>
-      } @else if (nameCtrl.touched && nameCtrl.hasError('maxlength')) {
-        <span class="text-xs" style="color: var(--p-red-400)">Максимум 32 символа</span>
-      }
+      <div class="flex justify-between items-start">
+        <span class="text-xs" style="color: var(--p-red-400)">
+          @if (nameCtrl.touched && nameCtrl.hasError('required')) {
+            Обязательное поле
+          } @else if (nameCtrl.touched && nameCtrl.hasError('minlength')) {
+            Минимум 3 символа
+          }
+        </span>
+        <span class="text-xs shrink-0" [style.color]="nameCtrl.value.length > 32 ? 'var(--p-red-400)' : 'var(--p-surface-400)'">
+          {{ nameCtrl.value.length }}/32
+        </span>
+      </div>
     </div>
 
     <!-- Format -->
@@ -52,6 +58,6 @@
 
   <ng-template #footer>
     <p-button label="Отмена" severity="secondary" [outlined]="true" (onClick)="close()" />
-    <p-button label="Создать" (onClick)="submit()" />
+    <p-button label="Создать" [disabled]="form.invalid" (onClick)="submit()" />
   </ng-template>
 </p-dialog>

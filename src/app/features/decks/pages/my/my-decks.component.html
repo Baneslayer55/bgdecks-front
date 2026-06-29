@@ -7,15 +7,11 @@
       <div class="flex justify-center py-20">
         <p-progress-spinner />
       </div>
-    } @else if (decks().length === 0) {
-      <div class="flex flex-col items-center justify-center py-20 gap-2">
-        <i class="pi pi-inbox text-4xl" style="color: var(--p-surface-400)"></i>
-        <p class="text-sm" style="color: var(--p-surface-300)">Колоды не найдены</p>
-      </div>
     } @else {
-      <div class="grid gap-3" [style.grid-template-columns]="'repeat(auto-fill, minmax(280px, 1fr))'">
+      <div class="grid gap-6" [style.grid-template-columns]="'repeat(auto-fill, minmax(320px, 1fr))'">
+        <app-create-deck-placeholder (clicked)="createDialogVisible.set(true)" />
         @for (deck of decks(); track deck.id) {
-          <app-deck-card [deck]="deck" />
+          <app-deck-card [deck]="deck" (deleted)="search()" />
         }
       </div>
 
@@ -39,7 +35,7 @@
   @if (isMobile()) {
     <!-- Mobile: fixed overlay, tab + panel slide together -->
     <div
-      class="fixed right-0 top-0 h-screen z-40 flex transition-transform duration-300"
+      class="fixed right-0 top-14 h-[calc(100vh-3.5rem)] z-40 flex transition-transform duration-300"
       [class.translate-x-80]="!filtersOpen()"
     >
       <div class="flex items-center">
@@ -61,6 +57,12 @@
   }
 
 </div>
+
+<app-create-deck-dialog
+  [visible]="createDialogVisible()"
+  (visibleChange)="createDialogVisible.set($event)"
+  (created)="onDeckCreated($event)"
+/>
 
 <!-- ── Templates ──────────────────────────────────────────────────────────── -->
 

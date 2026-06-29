@@ -16,6 +16,7 @@ export class CardAutocompleteComponent {
   readonly placeholder = input('Поиск...');
   readonly resetTrigger = input<number>(0);
   readonly cardSelected = output<number | null>();
+  readonly cardObjectSelected = output<CardShortDto | null>();
 
   readonly suggestions = signal<CardShortDto[]>([]);
   selected: CardShortDto | null = null;
@@ -41,11 +42,14 @@ export class CardAutocompleteComponent {
   }
 
   onSelect(event: AutoCompleteSelectEvent): void {
-    this.cardSelected.emit((event.value as CardShortDto).id);
+    const card = event.value as CardShortDto;
+    this.cardSelected.emit(card.id);
+    this.cardObjectSelected.emit(card);
   }
 
   onClear(): void {
     this.selected = null;
     this.cardSelected.emit(null);
+    this.cardObjectSelected.emit(null);
   }
 }

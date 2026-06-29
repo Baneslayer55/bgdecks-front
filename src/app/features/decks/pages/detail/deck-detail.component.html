@@ -9,14 +9,36 @@
   </div>
 } @else if (deck(); as d) {
 
-  <div class="flex gap-6 p-6">
+  <!-- Edit mode toolbar -->
+  @if (editMode()) {
+    <div class="flex items-center gap-3 px-6 py-3 border-b" style="background: var(--p-surface-900); border-color: var(--p-surface-700)">
+      <span class="flex-1 text-sm font-medium" style="color: var(--p-surface-200)">Редактирование колоды</span>
+      @if (saveError()) {
+        <span class="text-xs" style="color: #f87171">Ошибка сохранения</span>
+      }
+      <p-button label="Отмена" severity="secondary" [outlined]="true" size="small" (onClick)="cancelEdit()" [disabled]="saving()" />
+      <p-button label="Сохранить" size="small" [loading]="saving()" (onClick)="saveEdits()" />
+    </div>
+  }
 
-    <!-- Левая колонка: заголовок + герой + профиль владельца -->
-    <div class="w-44 shrink-0 flex flex-col gap-3">
+  <div class="flex flex-wrap gap-6 p-6 items-start">
 
-      <!-- Название, формат, валидность -->
+    <!-- Hero block -->
+    <div class="w-[264px] shrink-0 flex flex-col gap-3">
+
       <div class="flex flex-col gap-1">
-        <h1 class="text-base font-bold leading-tight" style="color: var(--p-surface-0)">{{ d.name }}</h1>
+        <div class="flex items-start justify-between gap-1">
+          <h1 class="text-base font-bold leading-tight" style="color: var(--p-surface-0)">{{ d.name }}</h1>
+          @if (isOwner() && !editMode()) {
+            <button
+              type="button"
+              class="shrink-0 w-6 h-6 flex items-center justify-center rounded"
+              style="color: var(--p-surface-400)"
+              title="Редактировать"
+              (click)="enterEditMode()"
+            ><i class="pi pi-pencil" style="font-size: 12px"></i></button>
+          }
+        </div>
         @if (d.format) {
           <span class="text-xs" style="color: var(--p-surface-400)">{{ d.format.name }}</span>
         }
@@ -27,67 +49,213 @@
         }
       </div>
 
-      <img
-        [src]="heroImageUrl()"
-        [alt]="d.hero?.name"
-        class="w-full rounded-xl object-cover object-top"
-        style="aspect-ratio: 2/3"
-        (error)="$any($event.target).style.display='none'"
-      />
-      <app-user-profile-compact [profile]="d.owner" />
+      @if (editMode()) {
+        @if (editHeroCard() && !editHeroError()) {
+          <img
+            [src]="editHeroImageUrl()"
+            [alt]="editHeroCard()!.name"
+            class="w-full rounded-xl object-cover object-top"
+            style="aspect-ratio: 2/3"
+            (error)="editHeroError.set(true)"
+          />
+        } @else {
+          <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
+            <i class="pi pi-user text-2xl" style="color: var(--p-surface-500)"></i>
+          </div>
+        }
+        <app-card-autocomplete
+          searchMode="HEROES"
+          placeholder="Сменить героя"
+          [resetTrigger]="heroResetTrigger()"
+          (cardObjectSelected)="onHeroSelected($event)"
+        />
+      } @else {
+        @if (d.hero) {
+          <img
+            [src]="heroImageUrl()"
+            [alt]="d.hero.name"
+            class="w-full rounded-xl object-cover object-top"
+            style="aspect-ratio: 2/3"
+            (error)="$any($event.target).style.display='none'"
+          />
+        } @else {
+          <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
+            <i class="pi pi-user text-2xl" style="color: var(--p-surface-500)"></i>
+          </div>
+        }
+        <app-user-profile-compact [profile]="d.owner" />
+      }
     </div>
 
-    <!-- Правая часть: блоки карт -->
-    <div class="flex-1 flex flex-col gap-8 min-w-0">
+    <!-- Card sections -->
+    <div class="flex-1 min-w-[320px] flex flex-col gap-8">
 
-      <!-- Верхний ряд: Основная колода + Сайдборд -->
-      <div class="flex gap-6 items-start">
+      @if (editMode()) {
 
-        <!-- Основная колода -->
-        @if (mainCards().length) {
-          <div class="flex-1 min-w-0">
-            <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-              Основная колода <span style="color: var(--p-surface-500)">({{ mainCards().length }})</span>
-            </h2>
-            <div class="grid grid-cols-2 gap-2">
-              @for (entry of mainCards(); track entry.card.id) {
-                <app-deck-card-entry [entry]="entry" />
+        <div class="flex flex-wrap gap-6 items-start">
+
+          <div class="flex-1 min-w-0" style="max-width: 1456px">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
+                Основная колода <span style="color: var(--p-surface-500)">({{ editMain().length }})</span>
+              </h2>
+              <app-card-autocomplete
+                searchMode="NON_HEROES"
+                placeholder="Добавить карту"
+                [resetTrigger]="addMainTrigger()"
+                (cardObjectSelected)="addCard($event, 'MAIN')"
+              />
+            </div>
+            <div
+              cdkDropList
+              cdkDropListOrientation="mixed"
+              [id]="listIds.MAIN"
+              [cdkDropListConnectedTo]="[listIds.SIDEBOARD, listIds.MAYBEBOARD]"
+              [cdkDropListData]="editMain()"
+              (cdkDropListDropped)="onDrop($event)"
+              class="grid gap-2 min-h-16 rounded-lg p-1"
+              style="background: var(--p-surface-950); grid-template-columns: repeat(auto-fit, minmax(160px, 200px))"
+            >
+              @for (entry of editMain(); track entry.card.id) {
+                <app-edit-card-tile
+                  cdkDrag
+                  [entry]="entry"
+                  (removed)="removeCard(entry.card.id, 'MAIN')"
+                  (incremented)="adjustCount(entry.card.id, 'MAIN', 1)"
+                  (decremented)="adjustCount(entry.card.id, 'MAIN', -1)"
+                />
               }
             </div>
           </div>
-        }
 
-        <!-- Сайдборд -->
-        @if (sideboardCards().length) {
-          <div class="shrink-0" style="width: calc(2 * 120px + 8px)">
-            <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-              Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCards().length }})</span>
-            </h2>
-            <div class="grid grid-cols-2 gap-2">
-              @for (entry of sideboardCards(); track entry.card.id) {
-                <app-deck-card-entry [entry]="entry" />
+          <!-- SIDEBOARD (edit) -->
+          <div class="shrink-0" style="width: 408px">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
+                Сайдборд <span style="color: var(--p-surface-500)">({{ editSideboard().length }})</span>
+              </h2>
+              <app-card-autocomplete
+                searchMode="NON_HEROES"
+                placeholder="Добавить карту"
+                [resetTrigger]="addSideboardTrigger()"
+                (cardObjectSelected)="addCard($event, 'SIDEBOARD')"
+              />
+            </div>
+            <div
+              cdkDropList
+              cdkDropListOrientation="mixed"
+              [id]="listIds.SIDEBOARD"
+              [cdkDropListConnectedTo]="[listIds.MAIN, listIds.MAYBEBOARD]"
+              [cdkDropListData]="editSideboard()"
+              (cdkDropListDropped)="onDrop($event)"
+              class="grid grid-cols-2 gap-2 min-h-16 rounded-lg p-1"
+              style="background: var(--p-surface-950)"
+            >
+              @for (entry of editSideboard(); track entry.card.id) {
+                <app-edit-card-tile
+                  cdkDrag
+                  [entry]="entry"
+                  (removed)="removeCard(entry.card.id, 'SIDEBOARD')"
+                  (incremented)="adjustCount(entry.card.id, 'SIDEBOARD', 1)"
+                  (decremented)="adjustCount(entry.card.id, 'SIDEBOARD', -1)"
+                />
               }
             </div>
           </div>
-        }
 
-      </div>
-
-      <!-- Кандидаты (maybeboard) -->
-      @if (maybeboardCards().length) {
-        <div>
-          <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
-            Кандидаты <span style="color: var(--p-surface-500)">({{ maybeboardCards().length }})</span>
-          </h2>
-          <div class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))">
-            @for (entry of maybeboardCards(); track entry.card.id) {
-              <app-deck-card-entry [entry]="entry" />
-            }
+          <!-- MAYBEBOARD (edit) -->
+          <div class="w-full">
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
+                Кандидаты <span style="color: var(--p-surface-500)">({{ editMaybeboard().length }})</span>
+              </h2>
+              <app-card-autocomplete
+                searchMode="NON_HEROES"
+                placeholder="Добавить в кандидаты"
+                [resetTrigger]="addMaybeTrigger()"
+                (cardObjectSelected)="addCard($event, 'MAYBEBOARD')"
+              />
+            </div>
+            <div
+              cdkDropList
+              cdkDropListOrientation="mixed"
+              [id]="listIds.MAYBEBOARD"
+              [cdkDropListConnectedTo]="[listIds.MAIN, listIds.SIDEBOARD]"
+              [cdkDropListData]="editMaybeboard()"
+              (cdkDropListDropped)="onDrop($event)"
+              class="grid gap-2 min-h-16 rounded-lg p-1"
+              [style.grid-template-columns]="'repeat(auto-fill, minmax(160px, 180px))'"
+              style="background: var(--p-surface-950)"
+            >
+              @for (entry of editMaybeboard(); track entry.card.id) {
+                <app-edit-card-tile
+                  cdkDrag
+                  [entry]="entry"
+                  (removed)="removeCard(entry.card.id, 'MAYBEBOARD')"
+                  (incremented)="adjustCount(entry.card.id, 'MAYBEBOARD', 1)"
+                  (decremented)="adjustCount(entry.card.id, 'MAYBEBOARD', -1)"
+                />
+              }
+            </div>
           </div>
+
         </div>
+
+      } @else {
+
+        <div class="flex flex-wrap gap-6 items-start">
+
+          <!-- MAIN (view): fit-content без пустого места -->
+          @if (mainCards().length) {
+            <div class="flex-1 min-w-0" style="max-width: 1456px">
+              <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+                Основная колода <span style="color: var(--p-surface-500)">({{ mainCards().length }})</span>
+              </h2>
+              <div class="grid gap-2" style="grid-template-columns: repeat(auto-fit, minmax(160px, 200px))">
+                @for (entry of mainCards(); track entry.card.id) {
+                  <app-deck-card-entry [entry]="entry" />
+                }
+              </div>
+            </div>
+          }
+
+          <!-- SIDEBOARD (view) -->
+          @if (sideboardCards().length) {
+            <div class="shrink-0" style="width: 408px">
+              <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+                Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCards().length }})</span>
+              </h2>
+              <div class="grid grid-cols-2 gap-2">
+                @for (entry of sideboardCards(); track entry.card.id) {
+                  <app-deck-card-entry [entry]="entry" />
+                }
+              </div>
+            </div>
+          }
+
+          <!-- MAYBEBOARD (view) -->
+          @if (maybeboardCards().length) {
+            <div class="w-full">
+              <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+                Кандидаты <span style="color: var(--p-surface-500)">({{ maybeboardCards().length }})</span>
+              </h2>
+              <div class="grid gap-2" [style.grid-template-columns]="'repeat(auto-fill, minmax(160px, 180px))'">
+                @for (entry of maybeboardCards(); track entry.card.id) {
+                  <app-deck-card-entry [entry]="entry" />
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+
       }
 
     </div>
   </div>
 
+}
+
+@if (editMode()) {
+  <app-card-browser-panel (cardAdded)="onCardAdded($event)" />
 }

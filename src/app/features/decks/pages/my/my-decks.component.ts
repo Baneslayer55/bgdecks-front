@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
@@ -19,13 +20,15 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DeckService } from '../../services/deck.service';
 import { DeckPreviewComponent } from '../../components/deck-card/deck-preview.component';
+import { CreateDeckDialogComponent } from '../../components/create-deck-dialog/create-deck-dialog.component';
+import { CreateDeckPlaceholderComponent } from '../../components/create-deck-placeholder/create-deck-placeholder.component';
 import { CardAutocompleteComponent } from '../../../../shared/components/card-autocomplete/card-autocomplete.component';
 import { FormatSelectComponent } from '../../../../shared/components/format-select/format-select.component';
 import { HeroElementsFilterComponent } from '../../../../shared/components/hero-elements-filter/hero-elements-filter.component';
 import { DeckPreviewDto, DeckSearchRequest } from '../../models/deck.model';
 
-const DECK_MIN_WIDTH = 280;
-const DECK_GAP = 12;
+const DECK_MIN_WIDTH = 320;
+const DECK_GAP = 24;
 const ROWS_LARGE = 4;
 const ROWS_SMALL = 8;
 
@@ -38,6 +41,8 @@ const ROWS_SMALL = 8;
     PaginatorModule,
     ProgressSpinnerModule,
     DeckPreviewComponent,
+    CreateDeckDialogComponent,
+    CreateDeckPlaceholderComponent,
     CardAutocompleteComponent,
     FormatSelectComponent,
     HeroElementsFilterComponent,
@@ -46,6 +51,7 @@ const ROWS_SMALL = 8;
 })
 export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly deckService = inject(DeckService);
+  private readonly router = inject(Router);
   private readonly searchTrigger$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
   private resizeObserver?: ResizeObserver;
@@ -62,6 +68,7 @@ export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly filtersOpen = signal(true);
   readonly isMobile = signal(window.innerWidth < 800);
   readonly resetTrigger = signal(0);
+  readonly createDialogVisible = signal(false);
 
   heroId: number | null = null;
   deckCardId: number | null = null;
@@ -143,6 +150,10 @@ export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
   onPageChange(event: PaginatorState): void {
     this.page.set(event.page ?? 0);
     this.search();
+  }
+
+  onDeckCreated(id: number): void {
+    this.router.navigate(['/decks', id]);
   }
 
   reset(): void {
