@@ -1,0 +1,173 @@
+<!-- Toggle button (when panel is closed) -->
+@if (!panelOpen()) {
+  <button
+    type="button"
+    class="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium shadow-lg cursor-pointer"
+    style="background: var(--p-primary-500); color: #fff"
+    (click)="toggle()"
+  >
+    <i class="pi pi-database"></i>
+    База карт
+  </button>
+}
+
+<!-- Sliding panel -->
+@if (panelOpen()) {
+  <div
+    class="fixed bottom-0 left-0 right-0 z-30 flex flex-col border-t"
+    [style.height.px]="panelHeight()"
+    style="background: var(--p-surface-950); border-color: var(--p-surface-700)"
+  >
+    <!-- Resize handle -->
+    <div
+      class="flex items-center justify-center shrink-0 select-none touch-none cursor-ns-resize"
+      [class.h-4]="!isMobile()"
+      [class.h-6]="isMobile()"
+      (pointerdown)="onResizeStart($event)"
+      (pointermove)="onResizeMove($event)"
+      (pointerup)="onResizeEnd()"
+      (pointercancel)="onResizeEnd()"
+    >
+      <div class="w-16 h-1 rounded-full" style="background: var(--p-surface-600)"></div>
+    </div>
+
+    <!-- Header -->
+    <div
+      class="flex items-center gap-2 px-4 py-2 shrink-0 border-b"
+      style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+    >
+      <span class="flex-1 text-sm font-semibold" style="color: var(--p-surface-0)">База карт</span>
+
+      @if (isMobile()) {
+        @if (mobileShowFilters()) {
+          <button
+            type="button"
+            class="flex items-center gap-1.5 text-xs px-3 py-1 rounded cursor-pointer"
+            style="background: var(--p-surface-700); color: var(--p-surface-200)"
+            (click)="mobileShowFilters.set(false)"
+          >
+            <i class="pi pi-arrow-left" style="font-size: 10px"></i>
+            Карты
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="flex items-center gap-1.5 text-xs px-3 py-1 rounded cursor-pointer"
+            style="background: var(--p-surface-700); color: var(--p-surface-200)"
+            (click)="mobileShowFilters.set(true)"
+          >
+            <i class="pi pi-filter" style="font-size: 10px"></i>
+            Фильтры
+          </button>
+        }
+      }
+
+      <button
+        type="button"
+        class="w-6 h-6 flex items-center justify-center rounded cursor-pointer shrink-0"
+        style="color: var(--p-surface-400)"
+        (click)="toggle()"
+      ><i class="pi pi-times" style="font-size: 12px"></i></button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex flex-1 min-h-0 overflow-hidden">
+
+      @if (isMobile()) {
+        @if (mobileShowFilters()) {
+          <div class="flex-1 overflow-y-auto p-4">
+            <app-card-filters (filtersChange)="onFiltersChange($event)" />
+          </div>
+        } @else {
+          <div class="flex-1 flex flex-col min-w-0 overflow-hidden p-3 gap-3">
+            <ng-container *ngTemplateOutlet="cardsContent" />
+          </div>
+        }
+      } @else {
+        <aside
+          class="w-72 shrink-0 flex flex-col overflow-y-auto border-r p-4"
+          style="background: var(--p-surface-950); border-color: var(--p-surface-700)"
+        >
+          <app-card-filters (filtersChange)="onFiltersChange($event)" />
+        </aside>
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden p-4 gap-3">
+          <ng-container *ngTemplateOutlet="cardsContent" />
+        </div>
+      }
+
+    </div>
+  </div>
+}
+
+<!-- ── Cards content ──────────────────────────────────────────────────────── -->
+
+<ng-template #cardsContent>
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <p-progress-spinner />
+    </div>
+  } @else if (cards().length === 0) {
+    <div class="flex flex-col items-center justify-center py-8 gap-2">
+      <i class="pi pi-inbox text-3xl" style="color: var(--p-surface-400)"></i>
+      <p class="text-sm" style="color: var(--p-surface-300)">Карты не найдены</p>
+    </div>
+  } @else {
+    <div class="flex-1 overflow-y-auto min-h-0">
+      <div class="grid gap-3" [style.grid-template-columns]="cardGridCols()">
+        @for (card of cards(); track card.id) {
+          <div class="flex flex-col gap-1">
+            <app-card-item [card]="card" />
+            <div class="flex flex-col gap-0.5">
+
+              <button
+                type="button"
+                class="w-full text-xs py-1 rounded font-medium cursor-pointer"
+                style="transition: background 0.25s, color 0.25s"
+                [style.background]="isJustAdded(card.id, 'MAIN') ? 'rgba(34,197,94,0.7)' : 'rgba(34,197,94,0.15)'"
+                [style.color]="isJustAdded(card.id, 'MAIN') ? '#fff' : '#4ade80'"
+                (click)="addCard(card, 'MAIN')"
+              >
+                @if (isJustAdded(card.id, 'MAIN')) { <i class="pi pi-check"></i> } @else { Мейн }
+              </button>
+
+              <button
+                type="button"
+                class="w-full text-xs py-1 rounded font-medium cursor-pointer"
+                style="transition: background 0.25s, color 0.25s"
+                [style.background]="isJustAdded(card.id, 'SIDEBOARD') ? 'rgba(59,130,246,0.7)' : 'rgba(59,130,246,0.15)'"
+                [style.color]="isJustAdded(card.id, 'SIDEBOARD') ? '#fff' : '#60a5fa'"
+                (click)="addCard(card, 'SIDEBOARD')"
+              >
+                @if (isJustAdded(card.id, 'SIDEBOARD')) { <i class="pi pi-check"></i> } @else { Сайд }
+              </button>
+
+              <button
+                type="button"
+                class="w-full text-xs py-1 rounded font-medium cursor-pointer"
+                style="transition: background 0.25s, color 0.25s"
+                [style.background]="isJustAdded(card.id, 'MAYBEBOARD') ? 'rgba(168,85,247,0.7)' : 'rgba(168,85,247,0.15)'"
+                [style.color]="isJustAdded(card.id, 'MAYBEBOARD') ? '#fff' : '#c084fc'"
+                (click)="addCard(card, 'MAYBEBOARD')"
+              >
+                @if (isJustAdded(card.id, 'MAYBEBOARD')) { <i class="pi pi-check"></i> } @else { Мейби }
+              </button>
+
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (totalElements() > pageSize) {
+      <div class="flex justify-center shrink-0">
+        <p-paginator
+          [rows]="pageSize"
+          [totalRecords]="totalElements()"
+          [first]="page() * pageSize"
+          (onPageChange)="onPageChange($event)"
+          styleClass="w-fit"
+        />
+      </div>
+    }
+  }
+</ng-template>

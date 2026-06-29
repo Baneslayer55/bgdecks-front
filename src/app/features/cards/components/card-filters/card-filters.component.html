@@ -1,0 +1,94 @@
+<div class="flex flex-col gap-4">
+
+  <!-- Image filters -->
+  <div class="flex flex-col gap-3">
+    <div class="flex gap-4 justify-center">
+      <app-image-filter [options]="ELEMENTS" imageDir="/img/elements" [gridCols]="3"
+                        [(selected)]="selectedElements" (selectedChange)="onFilterChange()" />
+      <app-image-filter [options]="TYPES" imageDir="/img/types" [gridCols]="3"
+                        [(selected)]="selectedTypes" (selectedChange)="onFilterChange()" />
+    </div>
+    <div class="flex justify-center">
+      <app-image-filter [options]="RARITIES" imageDir="/img/rarities" [gridCols]="4"
+                        [gapPx]="5" [(selected)]="selectedRarities" (selectedChange)="onFilterChange()" />
+    </div>
+  </div>
+
+  <!-- Characteristics -->
+  <div class="flex flex-col gap-3">
+    <app-range-filter label="Стоимость" iconSrc="/img/texthelpers/coin.png"   [(value)]="costFilter"   (valueChange)="onFilterChange()" />
+    <app-range-filter label="Атака"     iconSrc="/img/texthelpers/attack.png" [(value)]="attackFilter" (valueChange)="onFilterChange()" />
+    <app-range-filter label="Здоровье"  iconSrc="/img/texthelpers/health.png" [(value)]="healthFilter" (valueChange)="onFilterChange()" />
+  </div>
+
+  <!-- Main selects -->
+  <div class="flex flex-col gap-3">
+    <input pInputText [(ngModel)]="nameModel" (ngModelChange)="onFilterChange()"
+           placeholder="Название карты" class="text-sm w-full leading-none !py-1.5" />
+    <p-select [options]="MULTI_ELEMENT_OPTIONS" [(ngModel)]="multiElementModel"
+              (ngModelChange)="onFilterChange()" optionLabel="label" optionValue="value"
+              styleClass="text-sm w-full" />
+    <p-select [options]="FOIL_OPTIONS" [(ngModel)]="foilModel"
+              (ngModelChange)="onFilterChange()" optionLabel="label" optionValue="value"
+              styleClass="text-sm w-full" />
+    <p-select [options]="PF_OPTIONS" [(ngModel)]="pfModel"
+              (ngModelChange)="onFilterChange()" optionLabel="label" optionValue="value"
+              styleClass="text-sm w-full" />
+  </div>
+
+  <hr style="border-color: var(--p-surface-700)" />
+
+  <!-- Sets, artists, checkboxes -->
+  <div class="flex flex-col gap-3">
+    <p-multiselect [options]="sets()" [(ngModel)]="selectedSets"
+                   (ngModelChange)="onFilterChange()" optionLabel="name"
+                   placeholder="Выпуск" [filter]="true" filterPlaceholder="Поиск..."
+                   styleClass="text-sm w-full" [maxSelectedLabels]="1"
+                   selectedItemsLabel="{0} выбрано" />
+    <p-multiselect [options]="artists()" [(ngModel)]="selectedArtists"
+                   (ngModelChange)="onFilterChange()" optionLabel="name"
+                   placeholder="Художник" [filter]="true" filterPlaceholder="Поиск..."
+                   styleClass="text-sm w-full" [maxSelectedLabels]="1"
+                   selectedItemsLabel="{0} выбрано" />
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <p-checkbox [(ngModel)]="isStandard" (ngModelChange)="onFilterChange()"
+                    [binary]="true" inputId="isStandard" />
+        <label for="isStandard" class="text-sm cursor-pointer" style="color: var(--p-surface-50)">
+          Выпуски стандарта
+        </label>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-checkbox [(ngModel)]="latestVersionsOnly" (ngModelChange)="onFilterChange()"
+                    [binary]="true" inputId="latestVersionsOnly" />
+        <label for="latestVersionsOnly" class="text-sm cursor-pointer" style="color: var(--p-surface-50)">
+          Последние версии карт
+        </label>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-checkbox [(ngModel)]="noAbilities" (ngModelChange)="onFilterChange()"
+                    [binary]="true" inputId="noAbilities" />
+        <label for="noAbilities" class="text-sm cursor-pointer" style="color: var(--p-surface-50)">
+          Без способностей
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <hr style="border-color: var(--p-surface-700)" />
+
+  <!-- Text + classes + reset -->
+  <div class="flex flex-col gap-3">
+    <app-text-input [helpers]="TEXT_HELPERS" [(value)]="textModel"
+                    (valueChange)="onFilterChange()" />
+    <p-multiselect [options]="classes()" [(ngModel)]="selectedClasses"
+                   (ngModelChange)="onFilterChange()" optionLabel="name"
+                   placeholder="Класс" [filter]="true" filterPlaceholder="Поиск..."
+                   styleClass="text-sm w-full" [maxSelectedLabels]="1"
+                   selectedItemsLabel="{0} выбрано" />
+    <div class="flex justify-center">
+      <p-button label="Сброс" severity="secondary" [outlined]="true" (onClick)="reset()" />
+    </div>
+  </div>
+
+</div>
