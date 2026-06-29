@@ -1,0 +1,55 @@
+<div
+  class="flex rounded-lg border transition-colors cursor-pointer w-[350px]"
+  (click)="navigateToDeck()"
+  style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+>
+  <!-- Hero image -->
+  <img
+    [src]="heroImageUrl"
+    [alt]="deck().hero?.name"
+    class="w-40 shrink-0 object-cover object-top rounded-l-lg"
+    style="aspect-ratio: 2/3"
+    (error)="$any($event.target).style.display='none'"
+  />
+
+  <!-- Deck info -->
+  <div class="flex flex-col justify-between p-3 flex-1 min-w-0 overflow-hidden">
+    <!-- Top: name, format, validity -->
+    <div class="flex flex-col gap-1.5">
+      <span class="font-semibold text-base leading-tight" style="color: var(--p-surface-0)">{{ deck().name }}</span>
+
+      @if (deck().format) {
+        <span class="text-xs" style="color: var(--p-surface-400)">{{ deck().format.name }}</span>
+      }
+
+      @if (deck().isValid) {
+        <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(34,197,94,0.15); color: #4ade80">
+          Валидна
+        </span>
+      } @else {
+        <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(239,68,68,0.15); color: #f87171">
+          Не валидна
+        </span>
+      }
+    </div>
+
+    <!-- Bottom: owner + stats -->
+    <div class="flex flex-col gap-2">
+      <app-user-profile-compact [profile]="deck().owner" />
+      <div class="flex gap-4">
+        <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
+          <i class="pi pi-clone text-xs"></i>
+          {{ deck().mainCardsTotal }}<span style="color: var(--p-surface-500)">/{{ deck().sideboardCardsTotal }}</span>
+        </span>
+        <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
+          <i class="pi pi-eye text-xs"></i>
+          {{ deck().views }}
+        </span>
+        <span class="text-xs flex items-center gap-1" [style.color]="rating >= 0 ? '#4ade80' : '#f87171'">
+          <i class="pi text-xs" [class.pi-thumbs-up]="rating >= 0" [class.pi-thumbs-down]="rating < 0"></i>
+          {{ rating >= 0 ? '+' : '' }}{{ rating }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

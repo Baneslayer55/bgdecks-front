@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../../../shared/api.config';
 import {
   CardShortDto,
   CreateDeckRequest,
+  DeckDto,
   DeckFormatDto,
   DeckSearchRequest,
   PagedDecks,
@@ -27,6 +28,10 @@ export class DeckService {
   autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES'): Observable<CardShortDto[]> {
     const params = new HttpParams().set('name', name).set('searchMode', searchMode);
     return this.http.get<CardShortDto[]>(`${this.baseUrl}/cards/autocomplete`, { params });
+  }
+
+  getDeck(id: number): Observable<DeckDto> {
+    return this.http.get<DeckDto>(`${this.baseUrl}/decks/${id}`);
   }
 
   createDeck(request: CreateDeckRequest): Observable<number> {

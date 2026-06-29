@@ -52,7 +52,7 @@ export interface DeckPreviewDto {
   id: number;
   name: string;
   hero: CardDto;
-  ownerId: UserProfileDto;
+  owner: UserProfileDto;
   isPublic: boolean;
   isValid: boolean;
   views: number;
@@ -64,6 +64,16 @@ export interface DeckPreviewDto {
   format: DeckFormatDto;
   reactions: ReactionDto[];
   validation: DeckValidationDto[];
+}
+
+export interface DeckCardDto {
+  card: CardDto;
+  position: 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
+  cardsCount: number;
+}
+
+export interface DeckDto extends DeckPreviewDto {
+  cards: DeckCardDto[];
 }
 
 export interface CreateDeckRequest {

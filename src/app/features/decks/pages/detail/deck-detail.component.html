@@ -1,0 +1,93 @@
+@if (loading()) {
+  <div class="flex justify-center py-20">
+    <p-progress-spinner />
+  </div>
+} @else if (hasError()) {
+  <div class="flex flex-col items-center justify-center py-20 gap-2">
+    <i class="pi pi-exclamation-circle text-4xl" style="color: var(--p-surface-400)"></i>
+    <p class="text-sm" style="color: var(--p-surface-300)">Не удалось загрузить колоду</p>
+  </div>
+} @else if (deck(); as d) {
+
+  <div class="flex gap-6 p-6">
+
+    <!-- Левая колонка: заголовок + герой + профиль владельца -->
+    <div class="w-44 shrink-0 flex flex-col gap-3">
+
+      <!-- Название, формат, валидность -->
+      <div class="flex flex-col gap-1">
+        <h1 class="text-base font-bold leading-tight" style="color: var(--p-surface-0)">{{ d.name }}</h1>
+        @if (d.format) {
+          <span class="text-xs" style="color: var(--p-surface-400)">{{ d.format.name }}</span>
+        }
+        @if (d.isValid) {
+          <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(34,197,94,0.15); color: #4ade80">Валидна</span>
+        } @else {
+          <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(239,68,68,0.15); color: #f87171">Не валидна</span>
+        }
+      </div>
+
+      <img
+        [src]="heroImageUrl()"
+        [alt]="d.hero?.name"
+        class="w-full rounded-xl object-cover object-top"
+        style="aspect-ratio: 2/3"
+        (error)="$any($event.target).style.display='none'"
+      />
+      <app-user-profile-compact [profile]="d.owner" />
+    </div>
+
+    <!-- Правая часть: блоки карт -->
+    <div class="flex-1 flex flex-col gap-8 min-w-0">
+
+      <!-- Верхний ряд: Основная колода + Сайдборд -->
+      <div class="flex gap-6 items-start">
+
+        <!-- Основная колода -->
+        @if (mainCards().length) {
+          <div class="flex-1 min-w-0">
+            <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+              Основная колода <span style="color: var(--p-surface-500)">({{ mainCards().length }})</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-2">
+              @for (entry of mainCards(); track entry.card.id) {
+                <app-deck-card-entry [entry]="entry" />
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Сайдборд -->
+        @if (sideboardCards().length) {
+          <div class="shrink-0" style="width: calc(2 * 120px + 8px)">
+            <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+              Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCards().length }})</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-2">
+              @for (entry of sideboardCards(); track entry.card.id) {
+                <app-deck-card-entry [entry]="entry" />
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- Кандидаты (maybeboard) -->
+      @if (maybeboardCards().length) {
+        <div>
+          <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
+            Кандидаты <span style="color: var(--p-surface-500)">({{ maybeboardCards().length }})</span>
+          </h2>
+          <div class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr))">
+            @for (entry of maybeboardCards(); track entry.card.id) {
+              <app-deck-card-entry [entry]="entry" />
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+}

@@ -8,6 +8,9 @@ export class CardImageService {
 
   getCardImageUrl(card: Card): string {
     const origin = new URL(this.baseUrl).origin;
+    if (!card) {
+      return `${origin}/images/cards/unknown_card.png`;
+    }
     return `${origin}/images/cards/${card.setInfo.id}/${card.imageMd5}`;
   }
 }

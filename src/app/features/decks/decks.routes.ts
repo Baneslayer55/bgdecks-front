@@ -13,4 +13,9 @@ export const decksRoutes: Routes = [
     loadComponent: () =>
       import('./pages/my/my-decks.component').then((m) => m.MyDecksComponent),
   },
+  {
+    path: ':deckId',
+    loadComponent: () =>
+      import('./pages/detail/deck-detail.component').then((m) => m.DeckDetailComponent),
+  },
 ];
