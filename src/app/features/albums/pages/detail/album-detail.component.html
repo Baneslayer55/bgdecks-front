@@ -1,0 +1,416 @@
+@if (loadingAlbum()) {
+  <div class="flex justify-center py-20">
+    <p-progress-spinner />
+  </div>
+} @else if (loadError() || !album()) {
+  <div class="flex flex-col items-center justify-center py-20 gap-2">
+    <i class="pi pi-exclamation-circle text-4xl" style="color: var(--p-surface-400)"></i>
+    <p class="text-sm" style="color: var(--p-surface-300)">Альбом не найден</p>
+  </div>
+} @else {
+
+  <!-- ── Album info block ──────────────────────────────────────────────────── -->
+  <div class="p-4 border-b" style="border-color: var(--p-surface-700)">
+    <div
+      class="rounded-lg border p-4 flex flex-col gap-3"
+      style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+    >
+
+      @if (!editMeta()) {
+        <!-- View mode -->
+        <div class="flex gap-4" [class.flex-col]="isMobile()" [class.flex-row]="!isMobile()" [class.items-start]="!isMobile()">
+
+          <!-- Left: name, badges, description -->
+          <div class="flex flex-col gap-2 flex-1 min-w-0">
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-xl font-semibold" style="color: var(--p-surface-0)">
+                {{ album()!.name }}
+              </h1>
+              @if (isOwner() && isOutdated()) {
+                <p-button
+                  icon="pi pi-arrow-up"
+                  label="Подтвердить актуальность"
+                  [loading]="upping()"
+                  (onClick)="upAlbum()"
+                  [style]="{ padding: '2px 8px', 'font-size': '0.7rem' }"
+                />
+              }
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="text-xs px-2 py-0.5 rounded-full"
+                style="background: var(--p-surface-700); color: var(--p-surface-200)"
+              >{{ typeLabel() }}</span>
+
+              <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-400)">
+                <i class="pi pi-clone text-xs"></i>
+                {{ album()!.cardsCount }} карт
+              </span>
+
+              @if (!album()!.isPublic) {
+                <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-500)">
+                  <i class="pi pi-lock text-xs"></i>
+                  Приватный
+                </span>
+              }
+            </div>
+
+            @if (album()!.description) {
+              <p class="text-sm" style="color: var(--p-surface-300)">
+                {{ album()!.description }}
+              </p>
+            }
+          </div>
+
+          <!-- Right: edit buttons + updated + owner -->
+          <div class="flex flex-col gap-3 shrink-0" [class.items-end]="!isMobile()">
+            @if (isOwner()) {
+              <div class="flex gap-2">
+                <p-button
+                  [label]="editCards() ? 'Завершить' : 'Ред. карты'"
+                  [icon]="editCards() ? 'pi pi-check' : 'pi pi-clone'"
+                  size="small"
+                  [severity]="editCards() ? 'success' : 'secondary'"
+                  (onClick)="toggleEditCards()"
+                />
+                <p-button
+                  label="Ред. альбом"
+                  icon="pi pi-pencil"
+                  size="small"
+                  severity="secondary"
+                  (onClick)="enterEditMeta()"
+                />
+              </div>
+            }
+
+            <div class="flex flex-col gap-2 items-end pt-1 border-t" style="border-color: var(--p-surface-700)">
+              <span class="text-xs" style="color: var(--p-surface-200)">
+                Актуально на: {{ album()!.updated ? (album()!.updated | date:'dd.MM.yyyy HH:mm') : 'никогда' }}
+              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs" style="color: var(--p-surface-200)">Владелец:</span>
+                <app-user-profile-compact [profile]="album()!.owner" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      } @else {
+        <!-- Edit mode for meta -->
+        <div class="flex flex-col gap-3">
+          <h2 class="text-sm font-semibold" style="color: var(--p-surface-200)">
+            Редактирование альбома
+          </h2>
+
+          <form [formGroup]="metaForm" class="flex flex-col gap-3">
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs" style="color: var(--p-surface-400)">Название</label>
+              <input
+                pInputText
+                formControlName="name"
+                maxlength="32"
+                class="w-full text-sm"
+                [class.ng-invalid]="metaNameCtrl.invalid && metaNameCtrl.touched"
+              />
+              @if (metaNameCtrl.touched && metaNameCtrl.hasError('minlength')) {
+                <span class="text-xs" style="color: var(--p-red-400)">Минимум 3 символа</span>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs" style="color: var(--p-surface-400)">Описание</label>
+              <textarea
+                pTextarea
+                formControlName="description"
+                maxlength="256"
+                rows="2"
+                class="w-full text-sm resize-none"
+              ></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-4 items-center">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs" style="color: var(--p-surface-400)">Тип</label>
+                <p-select
+                  formControlName="type"
+                  [options]="typeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  class="w-44"
+                />
+              </div>
+
+              <div class="flex items-center gap-2 mt-4">
+                <p-checkbox formControlName="isPublic" [binary]="true" inputId="editIsPublic" />
+                <label for="editIsPublic" class="text-sm cursor-pointer"
+                       style="color: var(--p-surface-200)">Публичный</label>
+              </div>
+            </div>
+
+          </form>
+
+          <div class="flex gap-2 pt-2">
+            <p-button label="Отмена" severity="secondary" [outlined]="true" size="small"
+                      (onClick)="cancelEditMeta()" />
+            <p-button label="Сохранить" size="small" [loading]="savingMeta()"
+                      [disabled]="metaForm.invalid" (onClick)="saveMeta()" />
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ── Cards section ─────────────────────────────────────────────────────── -->
+  <div class="flex min-h-screen">
+
+    <main class="flex flex-col gap-4 p-4 flex-1 min-w-0">
+
+      <!-- Add card panel (edit mode) -->
+      @if (editCards() && isOwner()) {
+        <div
+          class="rounded-lg border p-3 flex flex-wrap items-end gap-3"
+          style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+        >
+          <div class="flex flex-col gap-1 flex-1 min-w-48">
+            <label class="text-xs" style="color: var(--p-surface-400)">Карта</label>
+            <app-card-autocomplete
+              searchMode="ALL"
+              placeholder="Найти карту..."
+              [resetTrigger]="addCardResetTrigger()"
+              (cardObjectSelected)="onAddCardSelected($event)"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1 w-20">
+            <label class="text-xs" style="color: var(--p-surface-400)">Кол-во</label>
+            <p-inputnumber
+              [ngModel]="addCardCount()"
+              (ngModelChange)="addCardCount.set($event ?? 1)"
+              [min]="1"
+              [showButtons]="true"
+              inputStyleClass="w-20 text-sm"
+              [style]="{ width: '80px' }"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1 w-36">
+            <label class="text-xs" style="color: var(--p-surface-400)">Состояние</label>
+            <p-select
+              [ngModel]="addCardCondition()"
+              (ngModelChange)="addCardCondition.set($event)"
+              [options]="conditionOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-36"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1 w-28">
+            <label class="text-xs" style="color: var(--p-surface-400)">Цена (₽)</label>
+            <p-inputnumber
+              [ngModel]="addCardPrice()"
+              (ngModelChange)="addCardPrice.set($event)"
+              [min]="0"
+              placeholder="—"
+              inputStyleClass="w-28 text-sm"
+              [style]="{ width: '112px' }"
+            />
+          </div>
+
+          <p-button
+            label="Добавить"
+            icon="pi pi-plus"
+            size="small"
+            [disabled]="!addCardSelected()"
+            [loading]="addingCard()"
+            (onClick)="addCard()"
+          />
+        </div>
+      }
+
+      <!-- Cards grid -->
+      @if (loadingCards()) {
+        <div class="flex justify-center py-20">
+          <p-progress-spinner />
+        </div>
+      } @else if (albumCards().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 gap-2">
+          <i class="pi pi-inbox text-4xl" style="color: var(--p-surface-400)"></i>
+          <p class="text-sm" style="color: var(--p-surface-300)">Карты не найдены</p>
+        </div>
+      } @else {
+        <div class="grid gap-3"
+             [style.grid-template-columns]="'repeat(auto-fill, minmax(' + cardMinWidth() + 'px, 1fr))'">
+          @for (albumCard of albumCards(); track albumCard.id) {
+            <div
+              class="flex flex-col rounded-lg border overflow-hidden"
+              style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+            >
+              <!-- Card image -->
+              <app-card-image
+                [card]="albumCard.card"
+                class="w-full"
+                style="aspect-ratio: 2/3"
+              />
+
+              <!-- Card info -->
+              <div class="flex flex-col gap-2 p-2">
+
+                @if (editCards() && isOwner() && editingCardId() === albumCard.id) {
+                  <!-- Edit controls -->
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                      <p-inputnumber
+                        [ngModel]="editCount()"
+                        (ngModelChange)="editCount.set($event ?? 1)"
+                        [min]="1"
+                        [showButtons]="true"
+                        inputStyleClass="text-xs w-full"
+                        [style]="{ width: '100%' }"
+                      />
+                    </div>
+                    <p-select
+                      [ngModel]="editCondition()"
+                      (ngModelChange)="editCondition.set($event)"
+                      [options]="conditionOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      styleClass="text-xs w-full"
+                    />
+                    <p-inputnumber
+                      [ngModel]="editPrice()"
+                      (ngModelChange)="editPrice.set($event)"
+                      [min]="0"
+                      placeholder="Цена (₽)"
+                      inputStyleClass="text-xs w-full"
+                      [style]="{ width: '100%' }"
+                    />
+                    <div class="flex gap-1">
+                      <p-button
+                        icon="pi pi-check"
+                        size="small"
+                        [loading]="savingCard()"
+                        (onClick)="saveCard(albumCard)"
+                        styleClass="flex-1"
+                      />
+                      <p-button
+                        icon="pi pi-times"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="cancelCardEdit()"
+                        styleClass="flex-1"
+                      />
+                    </div>
+                  </div>
+                } @else {
+                  <!-- View info -->
+                  <div class="flex items-center justify-between gap-1 flex-wrap">
+                    <span
+                      class="text-xs px-1.5 py-0.5 rounded"
+                      style="background: var(--p-surface-700); color: var(--p-surface-300)"
+                    >{{ conditionLabel(albumCard.condition) }}</span>
+
+                    <span class="text-xs" style="color: var(--p-surface-300)">
+                      x{{ albumCard.cardsCount }}
+                    </span>
+
+                    @if (albumCard.price !== null) {
+                      <span class="text-xs" style="color: var(--p-surface-400)">
+                        {{ albumCard.price }} ₽
+                      </span>
+                    }
+                  </div>
+
+                  @if (editCards() && isOwner()) {
+                    <div class="flex gap-1">
+                      <p-button
+                        icon="pi pi-pencil"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="startCardEdit(albumCard)"
+                        styleClass="flex-1"
+                      />
+                      <p-button
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        [loading]="deletingCardId() === albumCard.id"
+                        (onClick)="deleteCard(albumCard)"
+                        styleClass="flex-1"
+                      />
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (totalElements() > pageSize()) {
+          <div class="flex justify-center">
+            <p-paginator
+              [rows]="pageSize()"
+              [totalRecords]="totalElements()"
+              [first]="page() * pageSize()"
+              (onPageChange)="onPageChange($event)"
+              styleClass="w-fit"
+            />
+          </div>
+        }
+      }
+
+    </main>
+
+    <!-- ── Filter drawer ───────────────────────────────────────────────────── -->
+
+    @if (isMobile()) {
+      <div
+        class="fixed right-0 top-14 h-[calc(100vh-3.5rem)] z-40 flex transition-transform duration-300"
+        [class.translate-x-80]="!filtersOpen()"
+      >
+        <div class="flex items-center">
+          <ng-container *ngTemplateOutlet="tabBtn" />
+        </div>
+        <ng-container *ngTemplateOutlet="filterPanel" />
+      </div>
+    } @else {
+      <div class="flex shrink-0 sticky top-0 h-screen">
+        <div class="flex items-center">
+          <ng-container *ngTemplateOutlet="tabBtn" />
+        </div>
+        <div class="overflow-hidden transition-all duration-300"
+             [class.w-0]="!filtersOpen()" [class.w-80]="filtersOpen()">
+          <ng-container *ngTemplateOutlet="filterPanel" />
+        </div>
+      </div>
+    }
+
+  </div>
+
+}
+
+<!-- ── Templates ──────────────────────────────────────────────────────────── -->
+
+<ng-template #tabBtn>
+  <button
+    type="button"
+    class="w-8 h-8 flex items-center justify-center rounded-l-md border-l border-t border-b cursor-pointer"
+    style="background: var(--p-surface-800); border-color: var(--p-surface-700)"
+    (click)="toggleFilters()"
+  >
+    <i class="pi pi-filter" style="color: white; font-size: 14px"></i>
+  </button>
+</ng-template>
+
+<ng-template #filterPanel>
+  <aside
+    class="w-80 h-full flex flex-col p-4 overflow-y-auto border-l"
+    style="background: var(--p-surface-950); border-color: var(--p-surface-700)"
+  >
+    <app-card-filters (filtersChange)="onFiltersChange($event)" />
+  </aside>
+</ng-template>

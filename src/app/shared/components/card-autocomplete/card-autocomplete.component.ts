@@ -12,7 +12,7 @@ import { CardDto } from '../../models/card.model';
 export class CardAutocompleteComponent {
   private readonly deckService = inject(DeckService);
 
-  readonly searchMode = input.required<'HEROES' | 'NON_HEROES'>();
+  readonly searchMode = input.required<'HEROES' | 'NON_HEROES' | 'ALL'>();
   readonly placeholder = input('Поиск...');
   readonly resetTrigger = input<number>(0);
   readonly cardSelected = output<number | null>();

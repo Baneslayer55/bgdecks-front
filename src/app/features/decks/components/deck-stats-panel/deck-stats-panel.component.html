@@ -1,0 +1,167 @@
+<!-- Toggle button -->
+@if (!panelOpen()) {
+  <button
+    type="button"
+    [class]="toggleBtnClass()"
+    style="background: var(--p-surface-700); color: var(--p-surface-100)"
+    (click)="toggle()"
+  >
+    <i class="pi pi-chart-bar"></i>
+    Статистика
+  </button>
+}
+
+<!-- Sliding panel -->
+@if (panelOpen()) {
+  <div
+    class="fixed bottom-0 left-0 right-0 z-30 flex flex-col border-t"
+    [style.height.px]="panelHeight()"
+    style="background: var(--p-surface-950); border-color: var(--p-surface-700)"
+  >
+    <!-- Resize handle -->
+    <div
+      class="flex items-center justify-center h-4 shrink-0 select-none touch-none cursor-ns-resize"
+      (pointerdown)="onResizeStart($event)"
+      (pointermove)="onResizeMove($event)"
+      (pointerup)="onResizeEnd()"
+      (pointercancel)="onResizeEnd()"
+    >
+      <div class="w-16 h-1 rounded-full" style="background: var(--p-surface-600)"></div>
+    </div>
+
+    <!-- Header -->
+    <div
+      class="flex items-center gap-2 px-4 py-2 shrink-0 border-b"
+      style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
+    >
+      <span class="flex-1 text-sm font-semibold" style="color: var(--p-surface-0)">Статистика колоды</span>
+      <button
+        type="button"
+        class="w-6 h-6 flex items-center justify-center rounded cursor-pointer shrink-0"
+        style="color: var(--p-surface-400)"
+        (click)="toggle()"
+      ><i class="pi pi-times" style="font-size: 12px"></i></button>
+    </div>
+
+    <!-- Charts: desktop row / mobile column -->
+    @if (isMobile()) {
+
+      <div class="flex-1 min-h-0 overflow-y-auto">
+        <div class="flex flex-col gap-4 p-3">
+
+          <!-- Bar chart -->
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium" style="color: var(--p-surface-300)">Стоимость (монеты)</span>
+              <span class="text-xs px-2 py-0.5 rounded" style="background: var(--p-surface-800); color: var(--p-surface-200)">
+                Среднее: {{ averageCost() }}
+              </span>
+            </div>
+            <div style="height: 160px">
+              @if (mainCards().length > 0) {
+                <p-chart type="bar" [data]="costChartData()" [options]="barOptions" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет карт</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="h-px" style="background: var(--p-surface-800)"></div>
+
+          <!-- Pie: types -->
+          <div class="flex flex-col gap-2">
+            <span class="text-xs font-medium" style="color: var(--p-surface-300)">Типы карт</span>
+            <div style="height: 200px">
+              @if (mainCards().length > 0) {
+                <p-chart type="pie" [data]="typeChartData()" [options]="pieOptionsMobile" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет карт</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="h-px" style="background: var(--p-surface-800)"></div>
+
+          <!-- Pie: classes -->
+          <div class="flex flex-col gap-2">
+            <span class="text-xs font-medium" style="color: var(--p-surface-300)">Топ классов</span>
+            <div style="height: 220px">
+              @if (classChartData().labels.length > 0) {
+                <p-chart type="pie" [data]="classChartData()" [options]="pieOptionsMobile" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет данных</span>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    } @else {
+
+      <div class="flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
+        <div class="flex gap-6 p-4 h-full min-w-[680px]">
+
+          <!-- Bar chart -->
+          <div class="flex flex-col gap-2 shrink-0" style="width: 340px">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium" style="color: var(--p-surface-300)">Стоимость (монеты)</span>
+              <span class="text-xs px-2 py-0.5 rounded" style="background: var(--p-surface-800); color: var(--p-surface-200)">
+                Среднее: {{ averageCost() }}
+              </span>
+            </div>
+            <div class="flex-1 min-h-0">
+              @if (mainCards().length > 0) {
+                <p-chart type="bar" [data]="costChartData()" [options]="barOptions" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет карт</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="w-px shrink-0 self-stretch" style="background: var(--p-surface-800)"></div>
+
+          <!-- Pie: types -->
+          <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
+            <span class="text-xs font-medium" style="color: var(--p-surface-300)">Типы карт</span>
+            <div class="flex-1 min-h-0">
+              @if (mainCards().length > 0) {
+                <p-chart type="pie" [data]="typeChartData()" [options]="pieOptions" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет карт</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="w-px shrink-0 self-stretch" style="background: var(--p-surface-800)"></div>
+
+          <!-- Pie: classes -->
+          <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
+            <span class="text-xs font-medium" style="color: var(--p-surface-300)">Топ классов</span>
+            <div class="flex-1 min-h-0">
+              @if (classChartData().labels.length > 0) {
+                <p-chart type="pie" [data]="classChartData()" [options]="pieOptions" [plugins]="chartPlugins" width="100%" height="100%" />
+              } @else {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-xs" style="color: var(--p-surface-500)">Нет данных</span>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    }
+  </div>
+}

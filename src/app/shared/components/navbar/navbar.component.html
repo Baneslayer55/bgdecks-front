@@ -5,27 +5,42 @@
   <a routerLink="/" class="text-lg font-semibold tracking-wide mr-3 no-underline"
      style="color: var(--p-surface-0)">BGDecks</a>
 
-  <button
-    type="button"
-    class="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm cursor-pointer"
-    style="color: var(--p-surface-100); background: transparent; border: none"
-    (click)="decksMenu.toggle($event)"
-  >
-    <i class="pi pi-clone"></i>
-    Колоды
-    <i class="pi pi-angle-down text-xs"></i>
-  </button>
-  <p-menu #decksMenu [model]="decksMenuItems()" [popup]="true" appendTo="body" />
+  <!-- Desktop nav links -->
+  <div class="hidden sm:flex items-center gap-1">
+    <button
+      type="button"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm cursor-pointer"
+      style="color: var(--p-surface-100); background: transparent; border: none"
+      (click)="tradeMenu.toggle($event)"
+    >
+      <i class="pi pi-shopping-cart"></i>
+      Трейд
+      <i class="pi pi-angle-down text-xs"></i>
+    </button>
+    <p-menu #tradeMenu [model]="tradeMenuItems()" [popup]="true" appendTo="body" />
 
-  <button
-    type="button"
-    class="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm cursor-pointer"
-    style="color: var(--p-surface-100); background: transparent; border: none"
-    [routerLink]="['/cards']"
-  >
-    <i class="pi pi-images"></i>
-    База карт
-  </button>
+    <button
+      type="button"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm cursor-pointer"
+      style="color: var(--p-surface-100); background: transparent; border: none"
+      (click)="decksMenu.toggle($event)"
+    >
+      <i class="pi pi-clone"></i>
+      Колоды
+      <i class="pi pi-angle-down text-xs"></i>
+    </button>
+    <p-menu #decksMenu [model]="decksMenuItems()" [popup]="true" appendTo="body" />
+
+    <button
+      type="button"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm cursor-pointer"
+      style="color: var(--p-surface-100); background: transparent; border: none"
+      [routerLink]="['/cards']"
+    >
+      <i class="pi pi-images"></i>
+      База карт
+    </button>
+  </div>
 
   <div class="flex-1"></div>
 
@@ -36,8 +51,128 @@
       </span>
       <p-button label="Выйти" severity="secondary" size="small" (onClick)="logout()" />
     } @else {
-      <p-button label="Регистрация" size="small" routerLink="/registration" />
+      <p-button label="Регистрация" size="small" [outlined]="true" routerLink="/registration"
+                styleClass="hidden sm:inline-flex" />
       <p-button label="Войти" size="small" (onClick)="login()" />
     }
   </div>
+
+  <!-- Mobile hamburger -->
+  <button
+    type="button"
+    class="flex sm:hidden items-center justify-center w-9 h-9 rounded cursor-pointer ml-1"
+    style="color: var(--p-surface-100); background: transparent; border: none"
+    (click)="mobileDrawerOpen.set(true)"
+  >
+    <i class="pi pi-bars text-lg"></i>
+  </button>
 </nav>
+
+<!-- Mobile drawer -->
+<p-drawer
+  [visible]="mobileDrawerOpen()"
+  (visibleChange)="mobileDrawerOpen.set($event)"
+  position="left"
+  [modal]="true"
+  styleClass="w-72"
+  [showCloseIcon]="false"
+  appendTo="body"
+>
+  <ng-template #header>
+    <div class="flex items-center justify-between w-full">
+      <span class="text-base font-semibold" style="color: var(--p-surface-0)">BGDecks</span>
+      <button
+        type="button"
+        class="flex items-center justify-center w-8 h-8 rounded cursor-pointer"
+        style="background: transparent; border: none; color: var(--p-surface-400)"
+        (click)="mobileDrawerOpen.set(false)"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </ng-template>
+
+  <div class="flex flex-col gap-1 py-2">
+
+    <!-- Трейд section -->
+    <span class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider"
+          style="color: var(--p-surface-500)">Трейд</span>
+
+    <button
+      type="button"
+      class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+      style="background: transparent; color: var(--p-surface-100)"
+      (click)="navigate(['/albums/public'])"
+    >
+      <i class="pi pi-images" style="color: var(--p-surface-400)"></i>
+      Альбомы пользователей
+    </button>
+
+    @if (authService.isAuthenticated()) {
+      <button
+        type="button"
+        class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+        style="background: transparent; color: var(--p-surface-100)"
+        (click)="navigate(['/albums/my'])"
+      >
+        <i class="pi pi-folder" style="color: var(--p-surface-400)"></i>
+        Мои альбомы
+      </button>
+    }
+
+    <hr class="my-2" style="border-color: var(--p-surface-700)" />
+
+    <!-- Колоды section -->
+    <span class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider"
+          style="color: var(--p-surface-500)">Колоды</span>
+
+    <button
+      type="button"
+      class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+      style="background: transparent; color: var(--p-surface-100)"
+      (click)="navigate(['/decks/public'])"
+    >
+      <i class="pi pi-th-large" style="color: var(--p-surface-400)"></i>
+      Колоды пользователей
+    </button>
+
+    @if (authService.isAuthenticated()) {
+      <button
+        type="button"
+        class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+        style="background: transparent; color: var(--p-surface-100)"
+        (click)="navigate(['/decks/my'])"
+      >
+        <i class="pi pi-folder" style="color: var(--p-surface-400)"></i>
+        Мои колоды
+      </button>
+    }
+
+    <hr class="my-2" style="border-color: var(--p-surface-700)" />
+
+    <!-- База карт -->
+    <button
+      type="button"
+      class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+      style="background: transparent; color: var(--p-surface-100)"
+      (click)="navigate(['/cards'])"
+    >
+      <i class="pi pi-images" style="color: var(--p-surface-400)"></i>
+      База карт
+    </button>
+
+    @if (!authService.isAuthenticated()) {
+      <hr class="my-2" style="border-color: var(--p-surface-700)" />
+      <button
+        type="button"
+        class="flex items-center gap-3 px-3 py-2.5 rounded text-sm cursor-pointer w-full text-left border-none"
+        style="background: transparent; color: var(--p-surface-100)"
+        (click)="navigate(['/registration'])"
+      >
+        <i class="pi pi-user-plus" style="color: var(--p-surface-400)"></i>
+        Регистрация
+      </button>
+    }
+
+  </div>
+</p-drawer>

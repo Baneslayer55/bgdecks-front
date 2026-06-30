@@ -1,0 +1,86 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  header="Изменить описание колоды"
+  [modal]="true"
+  [style]="{ width: '440px' }"
+  [breakpoints]="{ '480px': '96vw' }"
+  [draggable]="false"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 pt-2">
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-200)">Название</label>
+      <input
+        pInputText
+        formControlName="deckName"
+        placeholder="Название колоды..."
+        maxlength="32"
+        class="w-full text-sm"
+        [class.ng-invalid]="nameCtrl.invalid && nameCtrl.touched"
+      />
+      <div class="flex justify-between items-start">
+        <span class="text-xs" style="color: var(--p-red-400)">
+          @if (nameCtrl.touched && nameCtrl.hasError('required')) {
+            Обязательное поле
+          } @else if (nameCtrl.touched && nameCtrl.hasError('minlength')) {
+            Минимум 3 символа
+          }
+        </span>
+        <span class="text-xs shrink-0"
+              [style.color]="nameCtrl.value.length > 32 ? 'var(--p-red-400)' : 'var(--p-surface-400)'">
+          {{ nameCtrl.value.length }}/32
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-200)">Описание</label>
+      <textarea
+        pTextarea
+        formControlName="description"
+        placeholder="Описание колоды..."
+        maxlength="4096"
+        rows="4"
+        class="w-full text-sm resize-none"
+      ></textarea>
+      <span class="text-xs self-end"
+            [style.color]="descCtrl.value.length > 4096 ? 'var(--p-red-400)' : 'var(--p-surface-400)'">
+        {{ descCtrl.value.length }}/4096
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm" style="color: var(--p-surface-200)">Формат</label>
+      <p-select
+        formControlName="formatId"
+        [options]="formats()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Выберите формат..."
+        class="w-full"
+        [class.ng-invalid]="formatCtrl.invalid && formatCtrl.touched"
+      />
+      @if (formatCtrl.touched && formatCtrl.hasError('required')) {
+        <span class="text-xs" style="color: var(--p-red-400)">Обязательное поле</span>
+      }
+    </div>
+
+    <div class="flex items-center gap-2">
+      <p-checkbox formControlName="isPublic" [binary]="true" inputId="deckIsPublic" />
+      <label for="deckIsPublic" class="text-sm cursor-pointer" style="color: var(--p-surface-200)">
+        Публичная колода
+      </label>
+    </div>
+
+    @if (saveError()) {
+      <span class="text-xs" style="color: var(--p-red-400)">Не удалось сохранить изменения</span>
+    }
+
+  </form>
+
+  <ng-template #footer>
+    <p-button label="Отмена" severity="secondary" [outlined]="true" (onClick)="close()" [disabled]="submitting()" />
+    <p-button label="Сохранить" [loading]="submitting()" (onClick)="submit()" />
+  </ng-template>
+</p-dialog>

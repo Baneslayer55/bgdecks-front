@@ -39,7 +39,7 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly loading       = signal(false);
   readonly page          = signal(0);
   readonly columns       = signal(1);
-  readonly cardMinWidth  = computed(() => (this.isMobile() ? 160 : CARD_MIN_WIDTH));
+  readonly cardMinWidth  = computed(() => (this.isMobile() ? 130 : CARD_MIN_WIDTH));
   readonly rows          = signal(ROWS_LARGE);
   readonly pageSize      = computed(() => this.columns() * this.rows());
   readonly filtersOpen   = signal(window.innerWidth >= 800);

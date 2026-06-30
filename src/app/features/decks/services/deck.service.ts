@@ -10,6 +10,7 @@ import {
   DeckSearchRequest,
   PagedDecks,
   UpdateDeckCardsRequest,
+  UpdateDeckInfoRequest,
 } from '../models/deck.model';
 
 @Injectable({ providedIn: 'root' })
@@ -22,11 +23,16 @@ export class DeckService {
     return this.http.post<PagedDecks>(`${this.baseUrl}/decks/my`, request, { params });
   }
 
+  getPublicDecks(request: DeckSearchRequest, page: number, size: number): Observable<PagedDecks> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.post<PagedDecks>(`${this.baseUrl}/decks/public`, request, { params });
+  }
+
   getFormats(): Observable<DeckFormatDto[]> {
     return this.http.get<DeckFormatDto[]>(`${this.baseUrl}/decks/formats`);
   }
 
-  autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES'): Observable<CardDto[]> {
+  autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES' | 'ALL'): Observable<CardDto[]> {
     const params = new HttpParams().set('name', name).set('searchMode', searchMode);
     return this.http.get<CardDto[]>(`${this.baseUrl}/cards/autocomplete`, { params });
   }
@@ -41,6 +47,10 @@ export class DeckService {
 
   updateDeckCards(deckId: number, request: UpdateDeckCardsRequest): Observable<DeckDto> {
     return this.http.put<DeckDto>(`${this.baseUrl}/decks/${deckId}/cards`, request);
+  }
+
+  updateDeckInfo(deckId: number, request: UpdateDeckInfoRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/decks/${deckId}/info`, request);
   }
 
   deleteDeck(id: number): Observable<void> {

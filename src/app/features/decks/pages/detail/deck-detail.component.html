@@ -16,6 +16,7 @@
       @if (saveError()) {
         <span class="text-xs" style="color: #f87171">Ошибка сохранения</span>
       }
+      <p-button label="Изменить описание" severity="secondary" [outlined]="true" size="small" (onClick)="openInfoDialog()" [disabled]="saving()" />
       <p-button label="Отмена" severity="secondary" [outlined]="true" size="small" (onClick)="cancelEdit()" [disabled]="saving()" />
       <p-button label="Сохранить" size="small" [loading]="saving()" (onClick)="saveEdits()" />
     </div>
@@ -29,7 +30,7 @@
       <div class="flex flex-col gap-1">
         <div class="flex items-start justify-between gap-1">
           <h1 class="text-base font-bold leading-tight" style="color: var(--p-surface-0)">{{ d.name }}</h1>
-          @if (isOwner() && !editMode()) {
+          @if (!editMode() && isOwner()) {
             <button
               type="button"
               class="shrink-0 w-6 h-6 flex items-center justify-center rounded"
@@ -46,6 +47,16 @@
           <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(34,197,94,0.15); color: #4ade80">Валидна</span>
         } @else {
           <span class="self-start text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(239,68,68,0.15); color: #f87171">Не валидна</span>
+          @if (validationErrors().length) {
+            <ul class="flex flex-col gap-1 mt-1">
+              @for (err of validationErrors(); track err.message) {
+                <li class="flex items-start gap-1.5 text-xs" style="color: #fca5a5">
+                  <i class="pi pi-times-circle shrink-0 mt-0.5" style="font-size: 10px"></i>
+                  {{ err.message }}
+                </li>
+              }
+            </ul>
+          }
         }
       </div>
 
@@ -74,14 +85,15 @@
           <app-card-image
             [card]="d.hero"
             [deckFormat]="deckFormatName()"
-            class="w-full rounded-xl"
-            style="aspect-ratio: 2/3"
+            class="rounded-xl"
+            style="width: 85%; aspect-ratio: 2/3"
           />
         } @else {
-          <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
+          <div class="rounded-xl flex items-center justify-center" style="width: 85%; aspect-ratio: 2/3; background: var(--p-surface-800)">
             <i class="pi pi-user text-2xl" style="color: var(--p-surface-500)"></i>
           </div>
         }
+        <app-deck-export [deck]="d" />
         <app-user-profile-compact [profile]="d.owner" />
       }
     </div>
@@ -91,9 +103,9 @@
 
       @if (editMode()) {
 
-        <div class="flex flex-wrap gap-6 items-start">
+        <div class="flex flex-col gap-8">
 
-          <div class="flex-1 min-w-0" style="max-width: 1456px">
+          <div class="w-full">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
                 Основная колода <span style="color: var(--p-surface-500)">({{ editMainTotal() }})</span>
@@ -131,7 +143,7 @@
           </div>
 
           <!-- SIDEBOARD (edit) -->
-          <div class="shrink-0" [style.width]="isMobile() ? '100%' : '408px'">
+          <div class="w-full">
             <div class="flex items-center gap-3 mb-2 flex-wrap">
               <h2 class="text-sm font-semibold shrink-0" style="color: var(--p-surface-300)">
                 Сайдборд <span style="color: var(--p-surface-500)">({{ editSideboardTotal() }})</span>
@@ -210,11 +222,11 @@
 
       } @else {
 
-        <div class="flex flex-wrap gap-6 items-start">
+        <div class="flex flex-col gap-8">
 
-          <!-- MAIN (view): fit-content без пустого места -->
+          <!-- MAIN (view) -->
           @if (mainCards().length) {
-            <div class="flex-1 min-w-0" style="max-width: 1456px">
+            <div class="w-full">
               <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
                 Основная колода <span style="color: var(--p-surface-500)">({{ mainCardsTotal() }})</span>
               </h2>
@@ -228,7 +240,7 @@
 
           <!-- SIDEBOARD (view) -->
           @if (sideboardCards().length) {
-            <div class="shrink-0" [style.width]="isMobile() ? '100%' : '408px'">
+            <div class="w-full">
               <h2 class="text-sm font-semibold mb-3" style="color: var(--p-surface-300)">
                 Сайдборд <span style="color: var(--p-surface-500)">({{ sideboardCardsTotal() }})</span>
               </h2>
@@ -265,4 +277,17 @@
 
 @if (editMode()) {
   <app-card-browser-panel (cardAdded)="onCardAdded($event)" />
+}
+
+@if (deck()) {
+  <app-deck-stats-panel [mainCards]="mainCards()" [editModeActive]="editMode()" />
+}
+
+@if (deck(); as d) {
+  <app-edit-deck-info-dialog
+    [deck]="d"
+    [visible]="showInfoDialog()"
+    (visibleChange)="showInfoDialog.set($event)"
+    (saved)="onInfoSaved()"
+  />
 }

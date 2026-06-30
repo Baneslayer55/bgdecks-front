@@ -32,6 +32,7 @@ export interface DeckValidationDto {
 export interface DeckPreviewDto {
   id: number;
   name: string;
+  description?: string;
   hero: CardDto | null;
   owner: UserProfileDto;
   isPublic: boolean;
@@ -44,7 +45,7 @@ export interface DeckPreviewDto {
   sideboardCardsTotal: number;
   format: DeckFormatDto;
   reactions: ReactionDto[];
-  validation: DeckValidationDto[];
+  validations: DeckValidationDto[];
 }
 
 export interface DeckCardDto {
@@ -80,6 +81,13 @@ export interface UpdateDeckCardItem {
 export interface UpdateDeckCardsRequest {
   heroId: number;
   cards: UpdateDeckCardItem[];
+}
+
+export interface UpdateDeckInfoRequest {
+  deckName: string;
+  description?: string;
+  isPublic: boolean;
+  formatId: number;
 }
 
 export interface PagedDecks {

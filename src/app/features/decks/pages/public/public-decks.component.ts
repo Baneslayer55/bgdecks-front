@@ -1,13 +1,166 @@
-import { Component } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { ButtonModule } from 'primeng/button';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DeckService } from '../../services/deck.service';
+import { DeckPreviewComponent } from '../../components/deck-card/deck-preview.component';
+import { CardAutocompleteComponent } from '../../../../shared/components/card-autocomplete/card-autocomplete.component';
+import { FormatSelectComponent } from '../../../../shared/components/format-select/format-select.component';
+import { HeroElementsFilterComponent } from '../../../../shared/components/hero-elements-filter/hero-elements-filter.component';
+import { DeckPreviewDto, DeckSearchRequest } from '../../models/deck.model';
+
+const DECK_MIN_WIDTH = 320;
+const DECK_GAP = 24;
+const ROWS_LARGE = 4;
+const ROWS_SMALL = 8;
 
 @Component({
   selector: 'app-public-decks',
-  template: `
-    <div class="flex flex-col items-center justify-center py-20 gap-2">
-      <i class="pi pi-th-large text-4xl" style="color: var(--p-surface-400)"></i>
-      <h1 class="text-xl font-semibold" style="color: var(--p-surface-0)">Колоды пользователей</h1>
-      <p class="text-sm" style="color: var(--p-surface-400)">Страница в разработке</p>
-    </div>
-  `,
+  imports: [
+    NgTemplateOutlet,
+    FormsModule,
+    ButtonModule,
+    PaginatorModule,
+    ProgressSpinnerModule,
+    DeckPreviewComponent,
+    CardAutocompleteComponent,
+    FormatSelectComponent,
+    HeroElementsFilterComponent,
+  ],
+  templateUrl: './public-decks.component.html',
 })
-export class PublicDecksComponent {}
+export class PublicDecksComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly deckService = inject(DeckService);
+  private readonly searchTrigger$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
+  private resizeObserver?: ResizeObserver;
+
+  @ViewChild('mainContainer') private mainContainerRef!: ElementRef<HTMLElement>;
+
+  readonly decks = signal<DeckPreviewDto[]>([]);
+  readonly totalElements = signal(0);
+  readonly loading = signal(false);
+  readonly page = signal(0);
+  readonly columns = signal(1);
+  readonly rows = signal(ROWS_LARGE);
+  readonly pageSize = computed(() => this.columns() * this.rows());
+  readonly filtersOpen = signal(window.innerWidth >= 800);
+  readonly isMobile = signal(window.innerWidth < 800);
+  readonly resetTrigger = signal(0);
+
+  heroId: number | null = null;
+  deckCardId: number | null = null;
+  formatId: number | null = null;
+  heroElements: string[] = [];
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isMobile.set(window.innerWidth < 800);
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen.update((v) => !v);
+  }
+
+  ngOnInit(): void {
+    this.searchTrigger$
+      .pipe(debounceTime(500), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.page.set(0);
+        this.search();
+      });
+  }
+
+  ngAfterViewInit(): void {
+    let initialSearchDone = false;
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0].contentRect.width;
+      const cols = Math.max(1, Math.floor((width + DECK_GAP) / (DECK_MIN_WIDTH + DECK_GAP)));
+      const rows = window.innerWidth < 800 ? ROWS_SMALL : ROWS_LARGE;
+      const changed = cols !== this.columns() || rows !== this.rows();
+      if (changed) {
+        this.columns.set(cols);
+        this.rows.set(rows);
+        this.page.set(0);
+      }
+      if (changed || !initialSearchDone) {
+        initialSearchDone = true;
+        this.search();
+      }
+    });
+    this.resizeObserver.observe(this.mainContainerRef.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onHeroSelected(id: number | null): void {
+    this.heroId = id;
+    this.onFilterChange();
+  }
+
+  onDeckCardSelected(id: number | null): void {
+    this.deckCardId = id;
+    this.onFilterChange();
+  }
+
+  onFilterChange(): void {
+    this.searchTrigger$.next();
+  }
+
+  search(): void {
+    this.loading.set(true);
+    this.deckService
+      .getPublicDecks(this.buildRequest(), this.page(), this.pageSize())
+      .subscribe({
+        next: (res) => {
+          this.decks.set(res.content);
+          this.totalElements.set(res.totalElements);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+  }
+
+  onPageChange(event: PaginatorState): void {
+    this.page.set(event.page ?? 0);
+    this.search();
+  }
+
+  reset(): void {
+    this.heroId = null;
+    this.deckCardId = null;
+    this.formatId = null;
+    this.heroElements = [];
+    this.resetTrigger.update((v) => v + 1);
+    this.page.set(0);
+    this.search();
+  }
+
+  private buildRequest(): DeckSearchRequest {
+    return {
+      ...(this.heroId !== null && { heroId: this.heroId }),
+      ...(this.deckCardId !== null && { deckCardId: this.deckCardId }),
+      ...(this.formatId !== null && { formatId: this.formatId }),
+      ...(this.heroElements.length && { heroElements: this.heroElements }),
+    };
+  }
+}

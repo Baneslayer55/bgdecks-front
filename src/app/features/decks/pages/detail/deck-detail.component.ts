@@ -14,6 +14,9 @@ import { EditCardTileComponent } from '../../components/edit-card-tile/edit-card
 import { UserProfileCompactComponent } from '../../../../shared/components/user-profile-compact/user-profile-compact.component';
 import { CardAutocompleteComponent } from '../../../../shared/components/card-autocomplete/card-autocomplete.component';
 import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
+import { DeckStatsPanelComponent } from '../../components/deck-stats-panel/deck-stats-panel.component';
+import { DeckExportComponent } from '../../components/deck-export/deck-export.component';
+import { EditDeckInfoDialogComponent } from '../../components/edit-deck-info-dialog/edit-deck-info-dialog.component';
 
 type Position = 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
 
@@ -35,6 +38,9 @@ const LIST_IDS: Record<Position, string> = {
     CardAutocompleteComponent,
     CardBrowserPanelComponent,
     CardImageComponent,
+    DeckStatsPanelComponent,
+    DeckExportComponent,
+    EditDeckInfoDialogComponent,
   ],
   templateUrl: './deck-detail.component.html',
 })
@@ -52,6 +58,7 @@ export class DeckDetailComponent {
 
   // edit mode state
   readonly editMode = signal(false);
+  readonly showInfoDialog = signal(false);
   readonly saving = signal(false);
   readonly saveError = signal(false);
   readonly editHeroId = signal<number | null>(null);
@@ -81,7 +88,7 @@ export class DeckDetailComponent {
   readonly sideboardGridCols = computed(() =>
     this.isMobile()
       ? 'repeat(auto-fill, minmax(120px, 150px))'
-      : 'repeat(2, minmax(0, 1fr))',
+      : 'repeat(auto-fill, minmax(160px, 200px))',
   );
 
   @HostListener('window:resize')
@@ -92,6 +99,9 @@ export class DeckDetailComponent {
   private readonly change$ = new Subject<void>();
 
   readonly deckFormatName = computed(() => this.deck()?.format?.name ?? null);
+  readonly validationErrors = computed(() =>
+    this.deck()?.validations?.filter((v) => !v.isValid) ?? [],
+  );
 
   readonly isOwner = computed(() => {
     const d = this.deck();
@@ -167,6 +177,18 @@ export class DeckDetailComponent {
     this.editMode.set(true);
   }
 
+  openInfoDialog(): void {
+    this.showInfoDialog.set(true);
+  }
+
+  onInfoSaved(): void {
+    const id = this.deckId();
+    if (!id) return;
+    this.deckService.getDeck(+id).subscribe({
+      next: (deck) => this.deck.set(deck),
+    });
+  }
+
   cancelEdit(): void {
     this.isDirty.set(false);
     this.editMode.set(false);
@@ -187,10 +209,15 @@ export class DeckDetailComponent {
     this.saving.set(true);
     this.saveError.set(false);
     this.deckService.updateDeckCards(+deckId, { heroId, cards }).subscribe({
-      next: (updated) => {
-        this.deck.set(updated);
+      next: () => {
         this.isDirty.set(false);
-        this.saving.set(false);
+        this.deckService.getDeck(+deckId).subscribe({
+          next: (fresh) => {
+            this.deck.set(fresh);
+            this.saving.set(false);
+          },
+          error: () => this.saving.set(false),
+        });
       },
       error: () => {
         this.saving.set(false);
