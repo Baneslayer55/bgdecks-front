@@ -1,3 +1,8 @@
+export interface FormatDto {
+  id: number;
+  name: string;
+}
+
 export interface ArtistDto {
   id: number;
   nickname: string;

@@ -65,12 +65,12 @@
           <app-card-image
             [card]="editHeroCard()"
             [deckFormat]="deckFormatName()"
-            class="w-full rounded-xl"
+            class="w-[200px] rounded-xl"
             style="aspect-ratio: 2/3"
             (imageError)="editHeroError.set(true)"
           />
         } @else {
-          <div class="w-full rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
+          <div class="w-[200px] rounded-xl flex items-center justify-center" style="aspect-ratio: 2/3; background: var(--p-surface-800)">
             <i class="pi pi-user text-2xl" style="color: var(--p-surface-500)"></i>
           </div>
         }

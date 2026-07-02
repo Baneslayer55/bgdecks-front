@@ -183,6 +183,19 @@ export class AuthService {
     }
   }
 
+  hasRole(role: string): boolean {
+    const token = this.tokenStorage.getAccessToken();
+    if (!token) return false;
+    try {
+      const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = part + '='.repeat((4 - (part.length % 4)) % 4);
+      const payload = JSON.parse(atob(padded));
+      return Array.isArray(payload?.realm_access?.roles) && payload.realm_access.roles.includes(role);
+    } catch {
+      return false;
+    }
+  }
+
   isCurrentUser(userId: string): boolean {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return false;

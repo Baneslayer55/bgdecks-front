@@ -13,18 +13,18 @@
         <p class="text-sm" style="color: var(--p-surface-300)">Карты не найдены</p>
       </div>
     } @else {
-      <div class="grid gap-3" [style.grid-template-columns]="'repeat(auto-fill, minmax(' + cardMinWidth() + 'px, 1fr))'">
+      <div class="grid gap-2 justify-center" [style.grid-template-columns]="'repeat(' + columns() + ', minmax(0, 200px))'">
         @for (card of cards(); track card.id) {
           <app-card-item [card]="card" />
         }
       </div>
 
-      @if (totalElements() > pageSize()) {
+      @if (totalElements() > pageSize) {
         <div class="flex justify-center">
           <p-paginator
-            [rows]="pageSize()"
+            [rows]="pageSize"
             [totalRecords]="totalElements()"
-            [first]="page() * pageSize()"
+            [first]="page() * pageSize"
             (onPageChange)="onPageChange($event)"
             styleClass="w-fit"
           />
@@ -35,30 +35,15 @@
   </main>
 
   <!-- ── Filter drawer ─────────────────────────────────────────────────────── -->
-
-  @if (isMobile()) {
-    <!-- Mobile: fixed overlay, tab + panel slide together -->
-    <div
-      class="fixed right-0 top-14 h-[calc(100vh-3.5rem)] z-40 flex transition-transform duration-300"
-      [class.translate-x-80]="!filtersOpen()"
-    >
-      <div class="flex items-center">
-        <ng-container *ngTemplateOutlet="tabBtn" />
-      </div>
-      <ng-container *ngTemplateOutlet="filterPanel" />
+  <div
+    class="fixed right-0 top-14 h-[calc(100vh-3.5rem)] z-40 flex transition-transform duration-300"
+    [class.translate-x-80]="!filtersOpen()"
+  >
+    <div class="flex items-center">
+      <ng-container *ngTemplateOutlet="tabBtn" />
     </div>
-  } @else {
-    <!-- Desktop: in-flow, tab always visible, panel pushes content -->
-    <div class="flex shrink-0 sticky top-0 h-screen">
-      <div class="flex items-center">
-        <ng-container *ngTemplateOutlet="tabBtn" />
-      </div>
-      <div class="overflow-hidden transition-all duration-300"
-           [class.w-0]="!filtersOpen()" [class.w-80]="filtersOpen()">
-        <ng-container *ngTemplateOutlet="filterPanel" />
-      </div>
-    </div>
-  }
+    <ng-container *ngTemplateOutlet="filterPanel" />
+  </div>
 
 </div>
 

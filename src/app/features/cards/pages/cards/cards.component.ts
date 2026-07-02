@@ -11,8 +11,8 @@ import { CardDto, CardSearchRequest } from '../../models/card-search.model';
 
 const CARD_MIN_WIDTH = 200;
 const CARD_GAP = 12;
-const ROWS_LARGE = 6;
-const ROWS_SMALL = 12;
+const MAX_COLUMNS = 6;
+const PAGE_SIZE = 60;
 
 @Component({
   selector: 'app-cards',
@@ -40,8 +40,7 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly page          = signal(0);
   readonly columns       = signal(1);
   readonly cardMinWidth  = computed(() => (this.isMobile() ? 130 : CARD_MIN_WIDTH));
-  readonly rows          = signal(ROWS_LARGE);
-  readonly pageSize      = computed(() => this.columns() * this.rows());
+  readonly pageSize      = PAGE_SIZE;
   readonly filtersOpen   = signal(window.innerWidth >= 800);
   readonly isMobile      = signal(window.innerWidth < 800);
 
@@ -79,11 +78,9 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width;
-      const cols = Math.max(1, Math.floor((width + CARD_GAP) / (this.cardMinWidth() + CARD_GAP)));
-      const rows = window.innerWidth < 800 ? ROWS_SMALL : ROWS_LARGE;
-      if (cols !== this.columns() || rows !== this.rows()) {
+      const cols = Math.min(MAX_COLUMNS, Math.max(1, Math.floor((width + CARD_GAP) / (this.cardMinWidth() + CARD_GAP))));
+      if (cols !== this.columns()) {
         this.columns.set(cols);
-        this.rows.set(rows);
         this.page.set(0);
         this.search();
       }
@@ -107,7 +104,7 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchTrigger$.next({
       filters: this.currentFilters,
       page: this.page(),
-      size: this.pageSize(),
+      size: this.pageSize,
     });
   }
 

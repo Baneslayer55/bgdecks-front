@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../shared/api.config';
-import { ArtistDto, SetInfoDto } from '../../../shared/models/card.model';
+import { ArtistDto, FormatDto, SetInfoDto } from '../../../shared/models/card.model';
 import {
   CardDto,
   CardClass,
@@ -30,5 +30,9 @@ export class CardSearchService {
 
   getArtists(): Observable<ArtistDto[]> {
     return this.http.get<ArtistDto[]>(`${this.baseUrl}/cards/artists`);
+  }
+
+  getFormats(): Observable<FormatDto[]> {
+    return this.http.get<FormatDto[]>(`${this.baseUrl}/decks/formats`);
   }
 }

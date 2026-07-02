@@ -1,0 +1,170 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  header="Редактирование карты"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '560px' }"
+  [contentStyle]="{ 'max-height': '70vh', 'overflow-y': 'auto' }"
+  appendTo="body"
+>
+  <div class="flex flex-col gap-4 py-2">
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Тип *</label>
+        <p-select
+          [(ngModel)]="type"
+          [options]="typeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Выберите тип"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Редкость</label>
+        <p-select
+          [(ngModel)]="rarity"
+          [options]="rarityOptions"
+          optionLabel="label"
+          optionValue="value"
+          [showClear]="true"
+          placeholder="Выберите редкость"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div class="flex items-center gap-2 min-w-0">
+        <img src="img/texthelpers/coin.png" class="w-6 h-6 shrink-0 object-contain" title="Стоимость" />
+        <p-inputnumber [(ngModel)]="cost" [showButtons]="false" [min]="0" [inputStyle]="{'width':'100%'}" style="flex:1;min-width:0" placeholder="0" />
+      </div>
+      <div class="flex items-center gap-2 min-w-0">
+        <img src="img/texthelpers/attack.png" class="w-6 h-6 shrink-0 object-contain" title="Атака" />
+        <p-inputnumber [(ngModel)]="attack" [showButtons]="false" [min]="0" [inputStyle]="{'width':'100%'}" style="flex:1;min-width:0" placeholder="0" />
+      </div>
+      <div class="flex items-center gap-2 min-w-0">
+        <img src="img/texthelpers/health.png" class="w-6 h-6 shrink-0 object-contain" title="Здоровье" />
+        <p-inputnumber [(ngModel)]="health" [showButtons]="false" [min]="0" [inputStyle]="{'width':'100%'}" style="flex:1;min-width:0" placeholder="0" />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs" style="color: var(--p-surface-400)">Стихии</label>
+      <p-multiselect
+        [(ngModel)]="elements"
+        [options]="elementOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Выберите стихии"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs" style="color: var(--p-surface-400)">Классы</label>
+      <p-multiselect
+        [(ngModel)]="classes"
+        [options]="classOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Выберите классы"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs" style="color: var(--p-surface-400)">Текст способности</label>
+      <textarea
+        pTextarea
+        [(ngModel)]="text"
+        rows="3"
+        class="w-full"
+        style="resize: vertical"
+        placeholder="Текст карты..."
+      ></textarea>
+    </div>
+
+    <hr style="border-color: var(--p-surface-700)" />
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Сет *</label>
+        <p-select
+          [(ngModel)]="setId"
+          [options]="setOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Выберите сет"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Номер *</label>
+        <p-inputnumber [(ngModel)]="number" [showButtons]="false" [min]="1" class="w-full" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Художник</label>
+        <p-select
+          [(ngModel)]="artistId"
+          [options]="artistOptions"
+          optionLabel="label"
+          optionValue="value"
+          [showClear]="true"
+          placeholder="Не выбран"
+          [filter]="true"
+          filterBy="label"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Никнейм художника</label>
+        <input pInputText [(ngModel)]="artistNickname" class="w-full" placeholder="Введите никнейм" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs" style="color: var(--p-surface-400)">Вариант</label>
+        <p-select
+          [(ngModel)]="variant"
+          [options]="variantOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Выберите вариант"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <p-checkbox [(ngModel)]="isFoil" [binary]="true" inputId="isFoil" />
+      <label for="isFoil" class="text-sm cursor-pointer" style="color: var(--p-surface-200)">Фойл</label>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs" style="color: var(--p-surface-400)">Забанена в</label>
+      <p-multiselect
+        [(ngModel)]="bannedIn"
+        [options]="formatOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Выберите форматы"
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs" style="color: var(--p-surface-400)">Изображение</label>
+      <input #imageInput type="file" accept="image/*" class="text-sm" style="color: var(--p-surface-200)" />
+    </div>
+
+  </div>
+
+  <ng-template #footer>
+    <p-button label="Отмена" severity="secondary" [outlined]="true" [disabled]="saving()" (onClick)="visibleChange.emit(false)" />
+    <p-button label="Сохранить" [loading]="saving()" [disabled]="!type || !setId" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

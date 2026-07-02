@@ -79,7 +79,7 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   readonly pageSize = signal(24);
   readonly filtersOpen = signal(window.innerWidth >= 800);
   readonly isMobile = signal(window.innerWidth < 800);
-  readonly cardMinWidth = computed(() => (this.isMobile() ? 150 : 200));
+  readonly cardMinWidth = computed(() => (this.isMobile() ? 110 : 140));
 
   readonly isOwner = computed(() => {
     const a = this.album();

@@ -2,8 +2,8 @@
   @for (opt of options(); track opt.value) {
     <button
       type="button"
-      class="p-0.5 rounded transition-opacity cursor-pointer"
-      [class.opacity-25]="!isSelected(opt.value)"
+      class="p-0.5 rounded cursor-pointer transition-[filter]"
+      [style.filter]="isSelected(opt.value) ? 'none' : 'brightness(0.25)'"
       [title]="opt.label"
       (click)="toggle(opt.value)"
     >
