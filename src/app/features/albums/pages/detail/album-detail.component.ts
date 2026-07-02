@@ -1,18 +1,18 @@
 import {
   Component,
   HostListener,
-  OnDestroy,
   OnInit,
   computed,
   inject,
   input,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
@@ -61,11 +61,10 @@ import { CardSearchRequest } from '../../../cards/models/card-search.model';
   ],
   templateUrl: './album-detail.component.html',
 })
-export class AlbumDetailComponent implements OnInit, OnDestroy {
+export class AlbumDetailComponent implements OnInit {
   private readonly albumService = inject(AlbumService);
   private readonly authService = inject(AuthService);
   private readonly searchTrigger$ = new Subject<void>();
-  private readonly destroy$ = new Subject<void>();
 
   readonly albumId = input<string>();
 
@@ -134,19 +133,22 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
 
   private currentFilters: CardSearchRequest = {};
 
-  readonly typeOptions = [
-    { label: ALBUM_TYPE_LABELS['HAVE_LIST'], value: 'HAVE_LIST' as AlbumType },
-    { label: ALBUM_TYPE_LABELS['WISH_LIST'], value: 'WISH_LIST' as AlbumType },
-    { label: ALBUM_TYPE_LABELS['COLLECTION'], value: 'COLLECTION' as AlbumType },
-  ];
+  constructor() {
+    this.searchTrigger$
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        this.page.set(0);
+        this.searchCards();
+      });
+  }
 
-  readonly conditionOptions = [
-    { label: ALBUM_CONDITION_LABELS['NM'], value: 'NM' as AlbumCardCondition },
-    { label: ALBUM_CONDITION_LABELS['SP'], value: 'SP' as AlbumCardCondition },
-    { label: ALBUM_CONDITION_LABELS['HP'], value: 'HP' as AlbumCardCondition },
-    { label: ALBUM_CONDITION_LABELS['DM'], value: 'DM' as AlbumCardCondition },
-    { label: ALBUM_CONDITION_LABELS['LIST'], value: 'LIST' as AlbumCardCondition },
-  ];
+  readonly typeOptions = (Object.entries(ALBUM_TYPE_LABELS) as [AlbumType, string][]).map(
+    ([value, label]) => ({ label, value }),
+  );
+
+  readonly conditionOptions = (Object.entries(ALBUM_CONDITION_LABELS) as [AlbumCardCondition, string][]).map(
+    ([value, label]) => ({ label, value }),
+  );
 
   @HostListener('window:resize')
   onWindowResize(): void {
@@ -158,22 +160,10 @@ export class AlbumDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.searchTrigger$
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.page.set(0);
-        this.searchCards();
-      });
-
     const id = Number(this.albumId());
     if (id) {
       this.loadAlbum(id);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private loadAlbum(id: number): void {

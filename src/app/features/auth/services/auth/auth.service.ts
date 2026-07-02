@@ -107,14 +107,9 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.tokenStorage.hasToken());
 
   isTokenExpired(token: string, bufferSeconds = 30): boolean {
-    try {
-      const payload = JSON.parse(
-        atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')),
-      );
-      return Date.now() / 1000 > payload.exp - bufferSeconds;
-    } catch {
-      return true;
-    }
+    const payload = this.decodeToken(token);
+    if (!payload) return true;
+    return Date.now() / 1000 > (payload['exp'] as number) - bufferSeconds;
   }
 
   refreshTokens(): Promise<void> {
@@ -160,52 +155,37 @@ export class AuthService {
   getUsername(): string | null {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return null;
-
-    try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-      return decoded.preferred_username ?? decoded.sub ?? null;
-    } catch {
-      return null;
-    }
+    const payload = this.decodeToken(token);
+    return (payload?.['preferred_username'] ?? payload?.['sub'] ?? null) as string | null;
   }
 
   getUserId(): string | null {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return null;
-
-    try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-      return decoded.sub ?? null;
-    } catch {
-      return null;
-    }
+    return (this.decodeToken(token)?.['sub'] ?? null) as string | null;
   }
 
   hasRole(role: string): boolean {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return false;
-    try {
-      const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      const padded = part + '='.repeat((4 - (part.length % 4)) % 4);
-      const payload = JSON.parse(atob(padded));
-      return Array.isArray(payload?.realm_access?.roles) && payload.realm_access.roles.includes(role);
-    } catch {
-      return false;
-    }
+    const payload = this.decodeToken(token);
+    const roles = (payload?.['realm_access'] as { roles?: unknown[] } | undefined)?.roles;
+    return Array.isArray(roles) && roles.includes(role);
   }
 
   isCurrentUser(userId: string): boolean {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return false;
+    return this.decodeToken(token)?.['sub'] === userId;
+  }
 
+  private decodeToken(token: string): Record<string, unknown> | null {
     try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-      return decoded.sub === userId;
+      const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = part + '='.repeat((4 - (part.length % 4)) % 4);
+      return JSON.parse(atob(padded));
     } catch {
-      return false;
+      return null;
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, OnInit, output, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, effect, inject, input, output, signal, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -46,7 +46,7 @@ const RARITY_OPTIONS = [
   ],
   templateUrl: './card-edit-dialog.component.html',
 })
-export class CardEditDialogComponent implements OnInit {
+export class CardEditDialogComponent {
   private readonly cardEditService = inject(CardEditService);
   private readonly cardSearchService = inject(CardSearchService);
 
@@ -84,19 +84,23 @@ export class CardEditDialogComponent implements OnInit {
   classes: string[] = [];
   bannedIn: string[] = [];
 
+  private referenceDataLoaded = false;
+
   constructor() {
     effect(() => {
-      if (this.visible()) this.populateForm();
+      if (this.visible()) {
+        if (!this.referenceDataLoaded) {
+          this.referenceDataLoaded = true;
+          this.cardSearchService.getSets().subscribe((s) => this.sets.set(s));
+          this.cardSearchService.getArtists().subscribe((a) => this.artists.set(a));
+          this.cardSearchService.getFormats().subscribe((f) => this.formats.set(f));
+          this.cardSearchService.getClasses().subscribe((c) =>
+            this.classOptions.set(c.map((cl) => ({ label: cl.name, value: cl.id }))),
+          );
+        }
+        this.populateForm();
+      }
     });
-  }
-
-  ngOnInit(): void {
-    this.cardSearchService.getSets().subscribe((s) => this.sets.set(s));
-    this.cardSearchService.getArtists().subscribe((a) => this.artists.set(a));
-    this.cardSearchService.getFormats().subscribe((f) => this.formats.set(f));
-    this.cardSearchService.getClasses().subscribe((c) =>
-      this.classOptions.set(c.map((cl) => ({ label: cl.name, value: cl.id }))),
-    );
   }
 
   get setOptions() {

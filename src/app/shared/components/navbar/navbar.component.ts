@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
@@ -25,7 +25,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private routerSub!: Subscription;
 
-  readonly currentProfile = signal<UserProfileDto | null>(null);
+  readonly currentProfile = computed<UserProfileDto | null>(() => {
+    const p = this.userService.me();
+    if (!p) return null;
+    return {
+      id: p.id,
+      userId: p.userId,
+      username: p.username,
+      firstName: p.firstName ?? '',
+      lastName: p.lastName ?? '',
+      city: p.city ?? undefined,
+      avatarId: p.avatarId ?? undefined,
+      userSocials: p.userSocials ?? [],
+    };
+  });
 
   readonly mobileDrawerOpen = signal(false);
 
@@ -80,18 +93,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       });
 
     if (this.authService.isAuthenticated()) {
-      this.userService.getMe().subscribe({
-        next: (p) => this.currentProfile.set({
-          id: p.id,
-          userId: p.userId,
-          username: p.username,
-          firstName: p.firstName ?? '',
-          lastName: p.lastName ?? '',
-          city: p.city ?? undefined,
-          avatarId: p.avatarId ?? undefined,
-          userSocials: p.userSocials ?? [],
-        }),
-      });
+      this.userService.getMe().subscribe();
     }
   }
 

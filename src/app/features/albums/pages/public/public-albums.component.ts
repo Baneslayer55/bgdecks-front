@@ -6,10 +6,10 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  inject,
   signal,
   ViewChild,
 } from '@angular/core';
-import { inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { NgTemplateOutlet } from '@angular/common';

@@ -306,10 +306,4 @@ export class DeckDetailComponent {
     if (id === LIST_IDS.MAYBEBOARD) return 'MAYBEBOARD';
     return 'MAIN';
   }
-
-  private setSection(listId: string, cards: DeckCardDto[]): void {
-    if (listId === LIST_IDS.MAIN) this.editMain.set(cards);
-    else if (listId === LIST_IDS.SIDEBOARD) this.editSideboard.set(cards);
-    else if (listId === LIST_IDS.MAYBEBOARD) this.editMaybeboard.set(cards);
-  }
 }
