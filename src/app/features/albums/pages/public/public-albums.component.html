@@ -49,7 +49,7 @@
       <div class="flex items-center">
         <ng-container *ngTemplateOutlet="tabBtn" />
       </div>
-      <div class="overflow-hidden transition-all duration-300"
+      <div class="overflow-hidden transition-[width] duration-300"
            [class.w-0]="!filtersOpen()" [class.w-64]="filtersOpen()">
         <ng-container *ngTemplateOutlet="filterPanel" />
       </div>

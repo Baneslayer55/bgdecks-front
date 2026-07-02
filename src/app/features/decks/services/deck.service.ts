@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { API_BASE_URL } from '../../../shared/api.config';
 import {
   CardDto,
@@ -28,8 +28,13 @@ export class DeckService {
     return this.http.post<PagedDecks>(`${this.baseUrl}/decks/public`, request, { params });
   }
 
+  private formats$?: Observable<DeckFormatDto[]>;
+
   getFormats(): Observable<DeckFormatDto[]> {
-    return this.http.get<DeckFormatDto[]>(`${this.baseUrl}/decks/formats`);
+    this.formats$ ??= this.http.get<DeckFormatDto[]>(`${this.baseUrl}/decks/formats`).pipe(
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    return this.formats$;
   }
 
   autocomplete(name: string, searchMode: 'HEROES' | 'NON_HEROES' | 'ALL'): Observable<CardDto[]> {

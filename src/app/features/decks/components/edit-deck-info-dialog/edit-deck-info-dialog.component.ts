@@ -52,11 +52,15 @@ export class EditDeckInfoDialogComponent {
   get descCtrl() { return this.form.controls.description; }
   get formatCtrl() { return this.form.controls.formatId; }
 
-  constructor() {
-    this.deckService.getFormats().subscribe((f) => this.formats.set(f));
+  private formatsLoaded = false;
 
+  constructor() {
     effect(() => {
       if (this.visible()) {
+        if (!this.formatsLoaded) {
+          this.formatsLoaded = true;
+          this.deckService.getFormats().subscribe((f) => this.formats.set(f));
+        }
         const d = this.deck();
         this.form.reset({
           deckName: d.name,

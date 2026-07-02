@@ -11,14 +11,16 @@
 
   <!-- Edit mode toolbar -->
   @if (editMode()) {
-    <div class="flex items-center gap-3 px-6 py-3 border-b" style="background: var(--p-surface-900); border-color: var(--p-surface-700)">
-      <span class="flex-1 text-sm font-medium" style="color: var(--p-surface-200)">Редактирование колоды</span>
-      @if (saveError()) {
-        <span class="text-xs" style="color: #f87171">Ошибка сохранения</span>
-      }
-      <p-button label="Изменить описание" severity="secondary" [outlined]="true" size="small" (onClick)="openInfoDialog()" [disabled]="saving()" />
-      <p-button label="Отмена" severity="secondary" [outlined]="true" size="small" (onClick)="cancelEdit()" [disabled]="saving()" />
-      <p-button label="Сохранить" size="small" [loading]="saving()" (onClick)="saveEdits()" />
+    <div class="sticky top-14 z-40 flex items-center gap-2 px-3 sm:px-6 py-2 border-b" style="background: var(--p-surface-900); border-color: var(--p-surface-700)">
+      <span class="hidden sm:block flex-1 min-w-0 text-sm font-medium truncate" style="color: var(--p-surface-200)">Редактирование колоды</span>
+      <div class="flex items-center gap-2 shrink-0">
+        @if (saveError()) {
+          <span class="text-xs" style="color: #f87171">Ошибка сохранения</span>
+        }
+        <p-button label="Изменить описание" severity="secondary" [outlined]="true" size="small" (onClick)="openInfoDialog()" [disabled]="saving()" />
+        <p-button label="Отмена" severity="secondary" [outlined]="true" size="small" (onClick)="cancelEdit()" [disabled]="saving()" />
+        <p-button label="Сохранить" size="small" [loading]="saving()" (onClick)="saveEdits()" />
+      </div>
     </div>
   }
 
