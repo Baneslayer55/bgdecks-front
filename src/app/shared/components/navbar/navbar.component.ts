@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
