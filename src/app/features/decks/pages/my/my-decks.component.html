@@ -10,6 +10,24 @@
     } @else {
       <div class="grid gap-6" [style.grid-template-columns]="'repeat(auto-fill, minmax(320px, 1fr))'">
         <app-create-deck-placeholder (clicked)="createDialogVisible.set(true)" />
+        <div
+          class="flex flex-col items-center justify-center rounded-lg border transition-colors w-full h-full"
+          [class.cursor-pointer]="!migrating()"
+          [class.opacity-60]="migrating()"
+          style="background: var(--p-surface-900); border-color: var(--p-surface-600); border-style: dashed; min-height: 80px"
+          (click)="migrateDecks()"
+        >
+          <i
+            class="pi text-3xl"
+            [class.pi-sync]="!migrating()"
+            [class.pi-spin]="migrating()"
+            [class.pi-spinner]="migrating()"
+            style="color: var(--p-surface-400)"
+          ></i>
+          <span class="text-sm font-medium mt-2 text-center px-2" style="color: var(--p-surface-300)">
+            Синхронизировать колоды с berserkdeck.ru
+          </span>
+        </div>
         @for (deck of decks(); track deck.id) {
           <app-deck-card [deck]="deck" (deleted)="search()" />
         }

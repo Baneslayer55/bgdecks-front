@@ -60,4 +60,8 @@ export class DeckService {
   likeDeck(id: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/decks/${id}/like`, null);
   }
+
+  migrate(): Observable<string> {
+    return this.http.post(`${this.baseUrl}/decks/migrate`, null, { responseType: 'text' });
+  }
 }

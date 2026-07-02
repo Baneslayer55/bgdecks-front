@@ -69,6 +69,7 @@ export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isMobile = signal(window.innerWidth < 800);
   readonly resetTrigger = signal(0);
   readonly createDialogVisible = signal(false);
+  readonly migrating = signal(false);
 
   heroId: number | null = null;
   deckCardId: number | null = null;
@@ -154,6 +155,19 @@ export class MyDecksComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onDeckCreated(id: number): void {
     this.router.navigate(['/decks', id]);
+  }
+
+  migrateDecks(): void {
+    if (this.migrating()) return;
+    this.migrating.set(true);
+    this.deckService.migrate().subscribe({
+      next: () => {
+        this.migrating.set(false);
+        this.page.set(0);
+        this.search();
+      },
+      error: () => this.migrating.set(false),
+    });
   }
 
   reset(): void {

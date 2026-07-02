@@ -10,8 +10,26 @@
       <div class="grid gap-3"
            [style.grid-template-columns]="'repeat(auto-fill, minmax(' + albumMinWidth() + 'px, 1fr))'">
         <app-create-album-placeholder (clicked)="createDialogVisible.set(true)" />
+        <div
+          class="flex flex-col items-center justify-center rounded-lg border transition-colors w-full h-full"
+          [class.cursor-pointer]="!migrating()"
+          [class.opacity-60]="migrating()"
+          style="background: var(--p-surface-900); border-color: var(--p-surface-600); border-style: dashed"
+          (click)="migrateAlbums()"
+        >
+          <i
+            class="pi text-3xl"
+            [class.pi-sync]="!migrating()"
+            [class.pi-spin]="migrating()"
+            [class.pi-spinner]="migrating()"
+            style="color: var(--p-surface-400)"
+          ></i>
+          <span class="text-sm font-medium mt-2 text-center px-2" style="color: var(--p-surface-300)">
+            Синхронизировать альбомы с berserkdeck.ru
+          </span>
+        </div>
         @for (album of albums(); track album.id) {
-          <app-album-preview [album]="album" />
+          <app-album-preview [album]="album" (deleted)="search()" />
         }
       </div>
 

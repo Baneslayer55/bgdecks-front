@@ -78,4 +78,12 @@ export class AlbumService {
   up(albumId: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/albums/${albumId}/up`, null);
   }
+
+  deleteAlbum(albumId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/albums/${albumId}`);
+  }
+
+  migrate(): Observable<string> {
+    return this.http.post(`${this.baseUrl}/albums/migrate`, null, { responseType: 'text' });
+  }
 }

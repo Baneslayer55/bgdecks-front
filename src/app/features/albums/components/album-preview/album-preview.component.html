@@ -22,9 +22,20 @@
       }
     </div>
 
-    @if (!album().isPublic) {
-      <i class="pi pi-lock text-xs shrink-0 mt-0.5" style="color: var(--p-surface-500)"></i>
-    }
+    <div class="flex items-center gap-1 shrink-0">
+      @if (!album().isPublic) {
+        <i class="pi pi-lock text-xs mt-0.5" style="color: var(--p-surface-500)"></i>
+      }
+      @if (isOwner()) {
+        <button
+          type="button"
+          class="w-6 h-6 flex items-center justify-center rounded"
+          style="color: var(--p-surface-400)"
+          title="Удалить"
+          (click)="onDeleteClick($event)"
+        ><i class="pi pi-trash" style="font-size: 12px"></i></button>
+      }
+    </div>
   </div>
 
   <div class="flex flex-wrap gap-2">
@@ -47,3 +58,31 @@
     <app-user-profile-compact [profile]="album().owner" />
   </div>
 </a>
+
+<p-dialog
+  [visible]="confirmVisible()"
+  (visibleChange)="confirmVisible.set($event)"
+  header="Удаление альбома"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '400px' }"
+>
+  <p class="text-sm py-2" style="color: var(--p-surface-200)">
+    Вы точно хотите удалить альбом? Это действие нельзя будет отменить.
+  </p>
+  <ng-template #footer>
+    <p-button
+      label="Отмена"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="deleting()"
+      (onClick)="confirmVisible.set(false)"
+    />
+    <p-button
+      label="Удалить"
+      severity="danger"
+      [loading]="deleting()"
+      (onClick)="confirmDelete()"
+    />
+  </ng-template>
+</p-dialog>

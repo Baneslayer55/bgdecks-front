@@ -65,6 +65,7 @@ export class MyAlbumsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isMobile = signal(window.innerWidth < 800);
   readonly albumMinWidth = computed(() => (this.isMobile() ? 150 : 280));
   readonly createDialogVisible = signal(false);
+  readonly migrating = signal(false);
 
   selectedType: AlbumType | null = null;
 
@@ -148,6 +149,19 @@ export class MyAlbumsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAlbumCreated(id: number): void {
     this.router.navigate(['/albums', id]);
+  }
+
+  migrateAlbums(): void {
+    if (this.migrating()) return;
+    this.migrating.set(true);
+    this.albumService.migrate().subscribe({
+      next: () => {
+        this.migrating.set(false);
+        this.page.set(0);
+        this.search();
+      },
+      error: () => this.migrating.set(false),
+    });
   }
 
   reset(): void {
