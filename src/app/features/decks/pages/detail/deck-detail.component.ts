@@ -16,6 +16,7 @@ import { CardAutocompleteComponent } from '../../../../shared/components/card-au
 import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
 import { DeckStatsPanelComponent } from '../../components/deck-stats-panel/deck-stats-panel.component';
 import { DeckExportComponent } from '../../components/deck-export/deck-export.component';
+import { DeckStatsComponent } from '../../components/deck-stats/deck-stats.component';
 import { EditDeckInfoDialogComponent } from '../../components/edit-deck-info-dialog/edit-deck-info-dialog.component';
 
 type Position = 'MAIN' | 'SIDEBOARD' | 'MAYBEBOARD';
@@ -40,6 +41,7 @@ const LIST_IDS: Record<Position, string> = {
     CardImageComponent,
     DeckStatsPanelComponent,
     DeckExportComponent,
+    DeckStatsComponent,
     EditDeckInfoDialogComponent,
   ],
   templateUrl: './deck-detail.component.html',

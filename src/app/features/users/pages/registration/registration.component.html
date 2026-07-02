@@ -38,6 +38,23 @@
       </div>
 
       <div class="flex flex-col gap-1">
+        <label class="text-sm" style="color: var(--p-surface-100)">Повторите пароль *</label>
+        <p-password
+          formControlName="confirmPassword"
+          placeholder="Повторите пароль"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [class.ng-invalid]="isInvalid('confirmPassword')"
+          [class.ng-dirty]="isInvalid('confirmPassword')"
+        />
+        @if (isInvalid('confirmPassword')) {
+          <span class="text-xs" style="color: var(--p-red-400)">{{ getError('confirmPassword') }}</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
         <label class="text-sm" style="color: var(--p-surface-100)">Имя пользователя *</label>
         <input
           pInputText

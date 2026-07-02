@@ -1,0 +1,19 @@
+<div class="flex gap-3">
+  <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
+    <i class="pi pi-clone text-xs"></i>
+    {{ deck().mainCardsTotal }}<span style="color: var(--p-surface-500)">/{{ deck().sideboardCardsTotal }}</span>
+  </span>
+  <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
+    <i class="pi pi-eye text-xs"></i>
+    {{ deck().views }}
+  </span>
+  <span
+    class="text-xs flex items-center gap-1 transition-colors"
+    [class.cursor-pointer]="isAuthenticated()"
+    [style.color]="isLiked() ? '#f87171' : 'var(--p-surface-300)'"
+    (click)="toggleLike()"
+  >
+    <i class="pi text-xs" [class.pi-heart-fill]="isLiked()" [class.pi-heart]="!isLiked()"></i>
+    {{ likeCount() }}
+  </span>
+</div>

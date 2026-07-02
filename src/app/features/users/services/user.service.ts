@@ -13,6 +13,10 @@ export class UserService {
     return this.http.post<void>(`${this.baseUrl}/users/registration`, request);
   }
 
+  getMe(): Observable<UserProfileModel> {
+    return this.http.get<UserProfileModel>(`${this.baseUrl}/users/me`);
+  }
+
   getProfile(id: string | number): Observable<UserProfileModel> {
     return this.http.get<UserProfileModel>(`${this.baseUrl}/users/${id}`);
   }

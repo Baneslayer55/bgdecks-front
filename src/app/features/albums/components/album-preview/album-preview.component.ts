@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AlbumDto, ALBUM_TYPE_LABELS, isAlbumOutdated } from '../../models/album.model';
 import { AlbumService } from '../../services/album.service';
@@ -9,12 +9,11 @@ import { UserProfileCompactComponent } from '../../../../shared/components/user-
 
 @Component({
   selector: 'app-album-preview',
-  imports: [DatePipe, ButtonModule, UserProfileCompactComponent],
+  imports: [RouterLink, DatePipe, ButtonModule, UserProfileCompactComponent],
   templateUrl: './album-preview.component.html',
   host: { class: 'block' },
 })
 export class AlbumPreviewComponent {
-  private readonly router = inject(Router);
   private readonly albumService = inject(AlbumService);
   private readonly authService = inject(AuthService);
 
@@ -24,10 +23,6 @@ export class AlbumPreviewComponent {
   readonly isOwner = computed(() => this.authService.isCurrentUser(this.album().owner.userId));
   readonly isOutdated = computed(() => isAlbumOutdated(this.album().updated));
   readonly upping = signal(false);
-
-  navigate(): void {
-    this.router.navigate(['/albums', this.album().id]);
-  }
 
   upAlbum(event: MouseEvent): void {
     event.stopPropagation();

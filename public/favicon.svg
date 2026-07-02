@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Card-back dark crimson background -->
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#3a0808"/>
+      <stop offset="100%" stop-color="#0f0101"/>
+    </radialGradient>
+
+    <!-- Dark steel dome -->
+    <linearGradient id="domeGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#6a7a92"/>
+      <stop offset="45%" stop-color="#303d50"/>
+      <stop offset="100%" stop-color="#18222e"/>
+    </linearGradient>
+
+    <!-- Face plate (slightly different shade) -->
+    <linearGradient id="faceGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#50607a"/>
+      <stop offset="100%" stop-color="#1a2535"/>
+    </linearGradient>
+
+    <!-- Eye glow halo -->
+    <filter id="eyeHalo" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark crimson background (Berserk card-back colour) -->
+  <rect width="64" height="64" rx="10" fill="url(#bgGrad)"/>
+
+  <!-- Card-back ornamental border -->
+  <rect x="3" y="3" width="58" height="58" rx="8"
+        fill="none" stroke="#7a1010" stroke-width="1.5"/>
+  <rect x="5.5" y="5.5" width="53" height="53" rx="6"
+        fill="none" stroke="#a01818" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Corner marks -->
+  <path d="M5 5 L13 5 L13 7 L7 7 L7 13 L5 13Z" fill="#7a1010"/>
+  <path d="M59 5 L51 5 L51 7 L57 7 L57 13 L59 13Z" fill="#7a1010"/>
+  <path d="M5 59 L13 59 L13 57 L7 57 L7 51 L5 51Z" fill="#7a1010"/>
+  <path d="M59 59 L51 59 L51 57 L57 57 L57 51 L59 51Z" fill="#7a1010"/>
+
+  <!-- Helmet dome (upper half) -->
+  <path d="M32 8 Q54 8 53 30 L11 30 Q10 8 32 8Z"
+        fill="url(#domeGrad)"/>
+
+  <!-- Helmet face plate (lower half) -->
+  <path d="M11 30 L12 46 Q15 58 27 60 L32 61 L37 60 Q49 58 52 46 L53 30Z"
+        fill="url(#faceGrad)"/>
+
+  <!-- Rim band -->
+  <rect x="9" y="27.5" width="46" height="5.5" rx="2.8"
+        fill="#3e4e62" stroke="#7a8fa8" stroke-width="0.6"/>
+
+  <!-- Rivet details on rim -->
+  <circle cx="14" cy="30" r="1.4" fill="#8090a8"/>
+  <circle cx="21" cy="30" r="1.1" fill="#6a7a90"/>
+  <circle cx="43" cy="30" r="1.1" fill="#6a7a90"/>
+  <circle cx="50" cy="30" r="1.4" fill="#8090a8"/>
+
+  <!-- Eye glow halos (orange fire behind slits) -->
+  <ellipse cx="21" cy="38" rx="8" ry="3.5"
+           fill="#e05500" filter="url(#eyeHalo)" opacity="0.85"/>
+  <ellipse cx="43" cy="38" rx="8" ry="3.5"
+           fill="#e05500" filter="url(#eyeHalo)" opacity="0.85"/>
+
+  <!-- Eye slits (dark narrow cuts) -->
+  <ellipse cx="21" cy="38" rx="7.5" ry="2.2" fill="#080a10"/>
+  <ellipse cx="43" cy="38" rx="7.5" ry="2.2" fill="#080a10"/>
+
+  <!-- Inner eye glow (amber light shining through) -->
+  <ellipse cx="21" cy="38" rx="5.5" ry="1.2" fill="#ff8800" opacity="0.55"/>
+  <ellipse cx="43" cy="38" rx="5.5" ry="1.2" fill="#ff8800" opacity="0.55"/>
+
+  <!-- Nasal guard -->
+  <rect x="30" y="33" width="4" height="26" rx="2"
+        fill="#3e4e62" stroke="#7a8fa8" stroke-width="0.5"/>
+
+  <!-- Dome highlight (left catch-light) -->
+  <path d="M18 14 Q24 9 32 8 Q26 10 18 14Z" fill="white" opacity="0.12"/>
+</svg>

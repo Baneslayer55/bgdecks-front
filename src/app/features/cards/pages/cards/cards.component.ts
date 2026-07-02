@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CardSearchService } from '../../services/card-search.service';
@@ -11,8 +11,8 @@ import { CardDto, CardSearchRequest } from '../../models/card-search.model';
 
 const CARD_MIN_WIDTH = 200;
 const CARD_GAP = 12;
-const ROWS_LARGE = 3;
-const ROWS_SMALL = 6;
+const ROWS_LARGE = 6;
+const ROWS_SMALL = 12;
 
 @Component({
   selector: 'app-cards',
@@ -28,7 +28,7 @@ const ROWS_SMALL = 6;
 })
 export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly cardSearchService = inject(CardSearchService);
-  private readonly searchTrigger$ = new Subject<void>();
+  private readonly searchTrigger$ = new Subject<{ filters: CardSearchRequest; page: number; size: number }>();
   private readonly destroy$ = new Subject<void>();
   private resizeObserver?: ResizeObserver;
 
@@ -58,10 +58,21 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.searchTrigger$
-      .pipe(debounceTime(500), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.page.set(0);
-        this.search();
+      .pipe(
+        debounceTime(300),
+        switchMap(({ filters, page, size }) => {
+          this.loading.set(true);
+          return this.cardSearchService.search(filters, page, size);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.cards.set(res.content);
+          this.totalElements.set(res.totalElements);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
       });
   }
 
@@ -88,21 +99,16 @@ export class CardsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onFiltersChange(req: CardSearchRequest): void {
     this.currentFilters = req;
-    this.searchTrigger$.next();
+    this.page.set(0);
+    this.search();
   }
 
   search(): void {
-    this.loading.set(true);
-    this.cardSearchService
-      .search(this.currentFilters, this.page(), this.pageSize())
-      .subscribe({
-        next: (res) => {
-          this.cards.set(res.content);
-          this.totalElements.set(res.totalElements);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+    this.searchTrigger$.next({
+      filters: this.currentFilters,
+      page: this.page(),
+      size: this.pageSize(),
+    });
   }
 
   onPageChange(event: PaginatorState): void {

@@ -1,15 +1,17 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { DialogModule } from 'primeng/dialog';
 import { CardDto } from '../../models/card.model';
 import { CardImageService } from '../../services/card-image.service';
 
 @Component({
   selector: 'app-card-image',
+  imports: [DialogModule],
   template: `
     <img
       [src]="url()"
       [alt]="card()?.name ?? ''"
       class="w-full h-full object-cover object-top"
-      style="border-radius: 8%"
+      [style]="'border-radius: 8%' + (zoomable() ? '; cursor: zoom-in' : '')"
       loading="lazy"
       draggable="false"
       (error)="onError($event)"
@@ -44,15 +46,42 @@ import { CardImageService } from '../../services/card-image.service';
         }
       </div>
     }
+
+    @if (zoomable()) {
+      <p-dialog
+        [visible]="dialogVisible()"
+        (visibleChange)="dialogVisible.set($event)"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [showHeader]="false"
+        [dismissableMask]="true"
+        appendTo="body"
+        [contentStyle]="{ padding: '0', background: 'transparent' }"
+        styleClass="!shadow-none !bg-transparent overflow-hidden rounded-2xl"
+      >
+        <img
+          [src]="url()"
+          [alt]="card()?.name ?? ''"
+          style="display: block; width: 300px; height: auto; border-radius: 4%"
+        />
+      </p-dialog>
+    }
   `,
-  host: { class: 'block relative overflow-hidden' },
+  host: {
+    class: 'block relative overflow-hidden',
+    '(click)': 'onImageClick($event)',
+  },
 })
 export class CardImageComponent {
   private readonly cardImageService = inject(CardImageService);
 
   readonly card = input<CardDto | null>(null);
   readonly deckFormat = input<string | null>(null);
+  readonly zoomable = input(true);
   readonly imageError = output<void>();
+
+  readonly dialogVisible = signal(false);
 
   readonly url = computed(() => this.cardImageService.getCardImageUrl(this.card()));
 
@@ -62,6 +91,12 @@ export class CardImageComponent {
     const fmt = this.deckFormat();
     return fmt === null ? true : bannedIn.includes(fmt);
   });
+
+  onImageClick(event: MouseEvent): void {
+    if (!this.zoomable()) return;
+    event.stopPropagation();
+    this.dialogVisible.set(true);
+  }
 
   onError(event: Event): void {
     (event.target as HTMLElement).style.display = 'none';

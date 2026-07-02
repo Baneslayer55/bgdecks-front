@@ -170,6 +170,19 @@ export class AuthService {
     }
   }
 
+  getUserId(): string | null {
+    const token = this.tokenStorage.getAccessToken();
+    if (!token) return null;
+
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      return decoded.sub ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   isCurrentUser(userId: string): boolean {
     const token = this.tokenStorage.getAccessToken();
     if (!token) return false;

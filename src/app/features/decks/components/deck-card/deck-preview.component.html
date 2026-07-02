@@ -3,23 +3,24 @@
   style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
 >
   <!-- Hero image -->
-  <app-card-image
-    [card]="deck().hero"
-    class="w-40 shrink-0 rounded-l-lg cursor-pointer"
+  <a
+    [routerLink]="['/decks', deck().id]"
+    class="w-40 shrink-0 rounded-l-lg overflow-hidden block"
     style="aspect-ratio: 2/3"
-    (click)="navigateToDeck()"
-  />
+  >
+    <app-card-image [card]="deck().hero" [zoomable]="false" class="w-full h-full" />
+  </a>
 
   <!-- Deck info -->
   <div class="flex flex-col justify-between p-3 flex-1 min-w-0 overflow-hidden">
     <!-- Top: name, format, validity -->
     <div class="flex flex-col gap-1.5">
       <div class="flex items-start justify-between gap-1">
-        <span
-          class="font-semibold text-base leading-tight cursor-pointer hover:underline"
+        <a
+          [routerLink]="['/decks', deck().id]"
+          class="font-semibold text-base leading-tight hover:underline no-underline"
           style="color: var(--p-surface-0)"
-          (click)="navigateToDeck()"
-        >{{ deck().name }}</span>
+        >{{ deck().name }}</a>
         @if (isOwner()) {
           <button
             type="button"
@@ -49,20 +50,7 @@
     <!-- Bottom: owner + stats -->
     <div class="flex flex-col gap-2">
       <app-user-profile-compact [profile]="deck().owner" />
-      <div class="flex gap-3">
-        <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
-          <i class="pi pi-clone text-xs"></i>
-          {{ deck().mainCardsTotal }}<span style="color: var(--p-surface-500)">/{{ deck().sideboardCardsTotal }}</span>
-        </span>
-        <span class="text-xs flex items-center gap-1" style="color: var(--p-surface-300)">
-          <i class="pi pi-eye text-xs"></i>
-          {{ deck().views }}
-        </span>
-        <span class="text-xs flex items-center gap-1" [style.color]="rating >= 0 ? '#4ade80' : '#f87171'">
-          <i class="pi text-xs" [class.pi-thumbs-up]="rating >= 0" [class.pi-thumbs-down]="rating < 0"></i>
-          {{ rating >= 0 ? '+' : '' }}{{ rating }}
-        </span>
-      </div>
+      <app-deck-stats [deck]="deck()" />
     </div>
   </div>
 </div>

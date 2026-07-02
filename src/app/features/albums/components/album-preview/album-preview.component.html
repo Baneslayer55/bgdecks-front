@@ -1,7 +1,7 @@
-<div
-  class="flex flex-col gap-3 rounded-lg border transition-colors cursor-pointer w-full p-3 hover:border-opacity-80"
-  style="background: var(--p-surface-900); border-color: var(--p-surface-700)"
-  (click)="navigate()"
+<a
+  [routerLink]="['/albums', album().id]"
+  class="flex flex-col gap-3 rounded-lg border transition-colors w-full p-3 hover:border-opacity-80 no-underline"
+  style="background: var(--p-surface-900); border-color: var(--p-surface-700); color: inherit"
 >
   <div class="flex items-start justify-between gap-2">
     <div class="flex items-center gap-2 min-w-0">
@@ -46,4 +46,4 @@
   <div class="flex items-center gap-2 pt-1 border-t" style="border-color: var(--p-surface-800)">
     <app-user-profile-compact [profile]="album().owner" />
   </div>
-</div>
+</a>

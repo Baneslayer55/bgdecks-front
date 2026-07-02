@@ -1,6 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
+
+function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  return password === confirmPassword ? null : { passwordMismatch: true };
+}
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -21,33 +33,44 @@ export class RegistrationComponent {
 
   readonly loading = signal(false);
 
-  readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: [
-      '',
-      [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_PATTERN)],
-    ],
-    username: ['', [Validators.required, Validators.pattern(USERNAME_PATTERN)]],
-    firstName: ['', [Validators.maxLength(32)]],
-    lastName: ['', [Validators.maxLength(32)]],
-    city: ['', [Validators.maxLength(32)]],
-  });
+  readonly form = this.fb.group(
+    {
+      email: ['', [Validators.required, Validators.email]],
+      password: [
+        '',
+        [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_PATTERN)],
+      ],
+      confirmPassword: ['', [Validators.required]],
+      username: ['', [Validators.required, Validators.pattern(USERNAME_PATTERN)]],
+      firstName: ['', [Validators.maxLength(32)]],
+      lastName: ['', [Validators.maxLength(32)]],
+      city: ['', [Validators.maxLength(32)]],
+    },
+    { validators: passwordMatchValidator },
+  );
 
   isInvalid(field: string): boolean {
     const control = this.form.get(field);
-    return !!control && control.invalid && control.touched;
+    if (!control || !control.touched) return false;
+    if (control.invalid) return true;
+    if (field === 'confirmPassword' && this.form.hasError('passwordMismatch')) return true;
+    return false;
   }
 
   getError(field: string): string {
     const errors = this.form.get(field)?.errors;
-    if (!errors) return '';
-    if (errors['required']) return 'Обязательное поле';
-    if (errors['email']) return 'Некорректный email';
-    if (errors['minlength']) return `Минимум ${errors['minlength'].requiredLength} символов`;
-    if (errors['maxlength']) return `Максимум ${errors['maxlength'].requiredLength} символов`;
-    if (errors['pattern']) {
-      if (field === 'password') return 'Пароль не должен содержать пробелы';
-      return 'Некорректный формат';
+    if (errors) {
+      if (errors['required']) return 'Обязательное поле';
+      if (errors['email']) return 'Некорректный email';
+      if (errors['minlength']) return `Минимум ${errors['minlength'].requiredLength} символов`;
+      if (errors['maxlength']) return `Максимум ${errors['maxlength'].requiredLength} символов`;
+      if (errors['pattern']) {
+        if (field === 'password') return 'Пароль не должен содержать пробелы';
+        return 'Некорректный формат';
+      }
+    }
+    if (field === 'confirmPassword' && this.form.hasError('passwordMismatch')) {
+      return 'Пароли не совпадают';
     }
     return '';
   }

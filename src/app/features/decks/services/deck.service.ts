@@ -56,4 +56,8 @@ export class DeckService {
   deleteDeck(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/decks/${id}`);
   }
+
+  likeDeck(id: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/decks/${id}/like`, null);
+  }
 }

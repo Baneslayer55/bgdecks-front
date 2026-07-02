@@ -5,12 +5,15 @@ import { DrawerModule } from 'primeng/drawer';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../features/auth/services/auth/auth.service';
+import { UserService } from '../../../features/users/services/user.service';
+import { UserProfileCompactComponent } from '../user-profile-compact/user-profile-compact.component';
+import { UserProfileDto } from '../../../features/decks/models/deck.model';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ButtonModule, RouterLink, MenuModule, DrawerModule],
+  imports: [ButtonModule, RouterLink, MenuModule, DrawerModule, UserProfileCompactComponent],
   templateUrl: './navbar.component.html',
 })
 export class NavbarComponent implements OnInit, OnDestroy {
@@ -18,8 +21,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('tradeMenu') tradeMenu!: Menu;
 
   protected readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private routerSub!: Subscription;
+
+  readonly currentProfile = signal<UserProfileDto | null>(null);
 
   readonly mobileDrawerOpen = signal(false);
 
@@ -72,6 +78,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.tradeMenu?.hide();
         this.mobileDrawerOpen.set(false);
       });
+
+    if (this.authService.isAuthenticated()) {
+      this.userService.getMe().subscribe({
+        next: (p) => this.currentProfile.set({
+          id: p.id,
+          userId: p.userId,
+          username: p.username,
+          firstName: p.firstName ?? '',
+          lastName: p.lastName ?? '',
+          city: p.city ?? undefined,
+          avatarId: p.avatarId ?? undefined,
+          userSocials: p.userSocials ?? [],
+        }),
+      });
+    }
   }
 
   ngOnDestroy(): void {

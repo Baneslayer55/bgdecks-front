@@ -46,9 +46,9 @@
 
   <div class="flex items-center gap-2">
     @if (authService.isAuthenticated()) {
-      <span class="text-sm hidden sm:block" style="color: var(--p-surface-200)">
-        {{ authService.getUsername() }}
-      </span>
+      @if (currentProfile()) {
+        <app-user-profile-compact [profile]="currentProfile()!" />
+      }
       <p-button label="Выйти" severity="secondary" size="small" (onClick)="logout()" />
     } @else {
       <p-button label="Регистрация" size="small" [outlined]="true" routerLink="/registration"

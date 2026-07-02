@@ -1,6 +1,8 @@
 import { CardDto } from '../../../shared/models/card.model';
+import { SocialModel } from '../../users/models/user.model';
 
 export type { CardDto } from '../../../shared/models/card.model';
+export type { SocialModel } from '../../users/models/user.model';
 
 export interface DeckFormatDto {
   id: number;
@@ -17,11 +19,12 @@ export interface UserProfileDto {
   lastName: string;
   city?: string;
   avatarId?: string;
+  userSocials: SocialModel[];
 }
 
-export interface ReactionDto {
-  userId: string;
-  reactionType: 'LIKE' | 'DISLIKE';
+export interface DeckFolderDto {
+  id: number;
+  name: string;
 }
 
 export interface DeckValidationDto {
@@ -44,7 +47,7 @@ export interface DeckPreviewDto {
   mainCardsTotal: number;
   sideboardCardsTotal: number;
   format: DeckFormatDto;
-  reactions: ReactionDto[];
+  likedUserIds: string[];
   validations: DeckValidationDto[];
 }
 
@@ -56,6 +59,7 @@ export interface DeckCardDto {
 
 export interface DeckDto extends DeckPreviewDto {
   cards: DeckCardDto[];
+  folder?: DeckFolderDto;
 }
 
 export interface CreateDeckRequest {

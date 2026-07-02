@@ -1,21 +1,21 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { API_BASE_URL } from '../../api.config';
-import { UserProfileDto } from '../../../features/decks/models/deck.model';
+import { SocialModel, UserProfileDto } from '../../../features/decks/models/deck.model';
 
 @Component({
   selector: 'app-user-profile-compact',
   templateUrl: './user-profile-compact.component.html',
+  imports: [RouterLink],
   host: {
-    class: 'flex items-center gap-2 min-w-0 cursor-pointer',
-    '(click)': 'navigate($event)',
+    class: 'flex items-center gap-2 min-w-0',
   },
 })
 export class UserProfileCompactComponent {
   private readonly baseUrl = inject(API_BASE_URL);
-  private readonly router = inject(Router);
 
   readonly profile = input.required<UserProfileDto>();
+  readonly showSocials = input<boolean>(false);
 
   readonly avatarUrl = computed(() => {
     const id = this.profile().avatarId;
@@ -36,8 +36,11 @@ export class UserProfileCompactComponent {
       .trim();
   });
 
-  navigate(event: MouseEvent): void {
-    event.stopPropagation();
-    this.router.navigate(['/profile', this.profile().id]);
-  }
+  readonly telegram = computed<SocialModel | null>(
+    () => this.profile().userSocials?.find((s) => s.socialType === 'Telegram') ?? null,
+  );
+
+  readonly vk = computed<SocialModel | null>(
+    () => this.profile().userSocials?.find((s) => s.socialType === 'VK') ?? null,
+  );
 }

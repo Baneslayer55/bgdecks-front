@@ -1,26 +1,69 @@
-@if (avatarUrl()) {
-  <img
-    [src]="avatarUrl()"
-    [alt]="profile().username"
-    class="w-7 h-7 rounded-full object-cover shrink-0"
-    (error)="$any($event.target).style.display='none'"
-  />
-} @else {
-  <div
-    class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold"
-    style="background: var(--p-surface-600); color: var(--p-surface-0)"
-  >
-    {{ initials() }}
-  </div>
-}
-
-<div class="flex flex-col min-w-0">
-  <span class="text-xs font-medium leading-tight truncate hover:underline" style="color: var(--p-surface-50)">
-    {{ profile().username }}
-  </span>
-  @if (fullName()) {
-    <span class="text-xs leading-tight truncate" style="color: var(--p-surface-400); font-size: 0.7rem">
-      {{ fullName() }}
-    </span>
+<a
+  [routerLink]="['/profile', profile().id]"
+  (click)="$event.stopPropagation()"
+  class="contents cursor-pointer"
+>
+  @if (avatarUrl()) {
+    <img
+      [src]="avatarUrl()"
+      [alt]="profile().username"
+      class="w-7 h-7 rounded-full object-cover shrink-0"
+      (error)="$any($event.target).style.display='none'"
+    />
+  } @else {
+    <div
+      class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold"
+      style="background: var(--p-surface-600); color: var(--p-surface-0)"
+    >
+      {{ initials() }}
+    </div>
   }
-</div>
+
+  <div class="flex items-center gap-3 min-w-0">
+    <div class="flex flex-col min-w-0 gap-0.5">
+      <span class="text-xs font-medium leading-tight truncate hover:underline" style="color: var(--p-surface-50)">
+        {{ profile().username }}
+      </span>
+      @if (fullName()) {
+        <span class="text-xs leading-tight truncate" style="color: var(--p-surface-400); font-size: 0.7rem">
+          {{ fullName() }}
+        </span>
+      }
+    </div>
+
+    @if (showSocials() && (telegram() || vk())) {
+      <div class="flex flex-col gap-0.5 shrink-0" (click)="$event.stopPropagation()">
+        @if (telegram(); as tg) {
+          <a
+            [href]="tg.socialUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1 hover:underline"
+            style="color: var(--p-primary-400); font-size: 0.7rem"
+          >
+            <i class="pi pi-send" style="font-size: 0.65rem"></i>
+            Telegram
+            @if (tg.isVerified) {
+              <i class="pi pi-verified" style="font-size: 0.6rem; color: var(--p-primary-300)"></i>
+            }
+          </a>
+        }
+        @if (vk(); as v) {
+          <a
+            [href]="v.socialUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1 hover:underline"
+            style="color: var(--p-primary-400); font-size: 0.7rem"
+          >
+            <i class="pi pi-users" style="font-size: 0.65rem"></i>
+            ВКонтакте
+            @if (v.isVerified) {
+              <i class="pi pi-verified" style="font-size: 0.6rem; color: var(--p-primary-300)"></i>
+            }
+          </a>
+        }
+      </div>
+    }
+  </div>
+</a>

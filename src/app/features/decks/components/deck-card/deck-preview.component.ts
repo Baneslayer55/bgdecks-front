@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DeckPreviewDto } from '../../models/deck.model';
@@ -7,17 +7,17 @@ import { AuthService } from '../../../auth/services/auth/auth.service';
 import { DeckService } from '../../services/deck.service';
 import { UserProfileCompactComponent } from '../../../../shared/components/user-profile-compact/user-profile-compact.component';
 import { CardImageComponent } from '../../../../shared/components/card-image/card-image.component';
+import { DeckStatsComponent } from '../deck-stats/deck-stats.component';
 
 @Component({
   selector: 'app-deck-card',
-  imports: [UserProfileCompactComponent, DialogModule, ButtonModule, CardImageComponent],
+  imports: [RouterLink, UserProfileCompactComponent, DialogModule, ButtonModule, CardImageComponent, DeckStatsComponent],
   templateUrl: './deck-preview.component.html',
   host: { class: 'block' },
 })
 export class DeckPreviewComponent {
   private readonly authService = inject(AuthService);
   private readonly deckService = inject(DeckService);
-  private readonly router = inject(Router);
 
   readonly deck = input.required<DeckPreviewDto>();
   readonly deleted = output<void>();
@@ -25,10 +25,6 @@ export class DeckPreviewComponent {
   readonly isOwner = computed(() => this.authService.isCurrentUser(this.deck().owner.userId));
   readonly confirmVisible = signal(false);
   readonly deleting = signal(false);
-
-  navigateToDeck(): void {
-    this.router.navigate(['/decks', this.deck().id]);
-  }
 
   onDeleteClick(event: MouseEvent): void {
     event.stopPropagation();
@@ -47,10 +43,4 @@ export class DeckPreviewComponent {
     });
   }
 
-  get rating(): number {
-    const reactions = this.deck().reactions ?? [];
-    const likes = reactions.filter((r) => r.reactionType === 'LIKE').length;
-    const dislikes = reactions.filter((r) => r.reactionType === 'DISLIKE').length;
-    return likes - dislikes;
-  }
 }
